@@ -1,39 +1,39 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-06T09:28:26Z",
+  "built_at": "2026-10-13T06:29:58Z",
   "package": {
     "name": "burns",
-    "version": "0.0.17",
+    "version": "0.0.18",
     "display_name": "burns",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "e9c14d46ad20061d4817199156bc7c800e0aced5",
-    "short_commit": "e9c14d4",
+    "commit": "2d078b4dc0988aadabcdcc2f037558bb8e3796d7",
+    "short_commit": "2d078b4",
     "branch": "main",
     "tags": [],
     "dirty": false,
-    "remote_url": "https://github.com/thorwhalen/burns",
-    "commit_url": "https://github.com/thorwhalen/burns/commit/e9c14d46ad20061d4817199156bc7c800e0aced5",
+    "remote_url": "https://github.com/reeleehq/burns",
+    "commit_url": "https://github.com/reeleehq/burns/commit/2d078b4dc0988aadabcdcc2f037558bb8e3796d7",
     "error": null
   },
   "ci": {
     "provider": "github",
-    "repository": "thorwhalen/burns",
-    "sha": "e9c14d46ad20061d4817199156bc7c800e0aced5",
+    "repository": "reeleehq/burns",
+    "sha": "2d078b4dc0988aadabcdcc2f037558bb8e3796d7",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "37442910946",
-    "run_url": "https://github.com/thorwhalen/burns/actions/runs/37442910946",
+    "run_id": "38356790449",
+    "run_url": "https://github.com/reeleehq/burns/actions/runs/38356790449",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.12",
+    "epythet": "0.2.14",
     "sphinx": "9.1.0",
     "docutils": "0.22.4",
-    "python": "3.12.14"
+    "python": "3.12.15"
   },
   "config": {
     "theme": "auto",
@@ -60,14 +60,16 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.17",
-    "relation": "same",
+    "latest": "0.0.19",
+    "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/thorwhalen/burns && cd burns\ngit checkout e9c14d46ad20061d4817199156bc7c800e0aced5\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/reeleehq/burns && cd burns\ngit checkout 2d078b4dc0988aadabcdcc2f037558bb8e3796d7\npip install \"epythet==0.2.14\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": true,
-    "notes": []
+    "aligned": false,
+    "notes": [
+      "The documented version (0.0.18) is behind the latest release on PyPI (0.0.19): `pip install burns` gives newer code than these docs describe."
+    ]
   }
 }

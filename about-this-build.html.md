@@ -2,38 +2,40 @@
 
 # About this build
 
-This documentation was built on **2026-10-06 09:28 UTC** from commit <a href="https://github.com/thorwhalen/burns/commit/e9c14d46ad20061d4817199156bc7c800e0aced5"><code>e9c14d4</code></a> on branch <code>main</code>, for **burns 0.0.17** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 06:29 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/2d078b4dc0988aadabcdcc2f037558bb8e3796d7"><code>2d078b4</code></a> on branch <code>main</code>, for **burns 0.0.18** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.0.18) is behind the latest release on PyPI (0.0.19): `pip install burns` gives newer code than these docs describe.
 
 ## Source
 
-|                     |                                                                                                                                                         |
-|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/burns/commit/e9c14d46ad20061d4817199156bc7c800e0aced5"><code>e9c14d46ad20061d4817199156bc7c800e0aced5</code></a> |
-| Branch              | <code>main</code>                                                                                                                                       |
-| Tags at this commit | none                                                                                                                                                    |
-| Working tree        | clean                                                                                                                                                   |
-| Remote              | <code>https://github.com/thorwhalen/burns</code>                                                                                                        |
+|                     |                                                                                                                                                       |
+|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Commit              | <a href="https://github.com/reeleehq/burns/commit/2d078b4dc0988aadabcdcc2f037558bb8e3796d7"><code>2d078b4dc0988aadabcdcc2f037558bb8e3796d7</code></a> |
+| Branch              | <code>main</code>                                                                                                                                     |
+| Tags at this commit | none                                                                                                                                                  |
+| Working tree        | clean                                                                                                                                                 |
+| Remote              | <code>https://github.com/reeleehq/burns</code>                                                                                                        |
 
 ## Continuous integration
 
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
-| Repository   | <code>thorwhalen/burns</code>                                                              |
-| Run          | <a href="https://github.com/thorwhalen/burns/actions/runs/37442910946">37442910946</a>     |
+| Repository   | <code>reeleehq/burns</code>                                                                |
+| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/38356790449">38356790449</a>       |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>e9c14d46ad20061d4817199156bc7c800e0aced5</code> (in the history of the built commit) |
+| Event commit | <code>2d078b4dc0988aadabcdcc2f037558bb8e3796d7</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.12  |
+| epythet  | 0.2.14  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
-| Python   | 3.12.14 |
+| Python   | 3.12.15 |
 
 ## Configuration as resolved
 
@@ -49,14 +51,14 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/burns/0.0.17/">0.0.17</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/burns/0.0.19/">0.0.19</a>, newer than the documented version (0.0.18).
 
 ## Reproduce
 
 ```bash
-git clone https://github.com/thorwhalen/burns && cd burns
-git checkout e9c14d46ad20061d4817199156bc7c800e0aced5
-pip install "epythet==0.2.12"
+git clone https://github.com/reeleehq/burns && cd burns
+git checkout 2d078b4dc0988aadabcdcc2f037558bb8e3796d7
+pip install "epythet==0.2.14"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 
