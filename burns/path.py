@@ -13,7 +13,8 @@ The model mirrors the professional NLE consensus and Remotion's
 
 - **Keyframes** are ``(t, Rect)`` waypoints with ``t in [0, 1]``. Two keyframes
   is the canonical Start/End Ken Burns case; N keyframes is the strict
-  generalization (a hold is two keyframes with equal rects).
+  generalization (a hold is two keyframes with equal rects; a single keyframe is
+  also valid and means a static framing).
 - **Easing** (a CSS timing function) is composed *over* the geometry —
   ``evaluate(t) == geometry(easing(t))`` — keeping motion *shape* orthogonal to
   motion *speed*. Default ``"ease-in-out"`` (the cinematic norm).

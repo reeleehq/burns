@@ -81,6 +81,12 @@ def _named_paths() -> dict[str, BurnsPath]:
         ),
         easing="linear",
     )
+    # A one-keyframe path: a static framing. Valid in Python, in the TS class and
+    # on the wire (the JSON Schema allows minItems 1), so it is pinned here and
+    # every golden path is validated against the schema by both suites.
+    paths["single_keyframe"] = BurnsPath(
+        keyframes=((0.0, Rect(0.1, 0.2, 0.6, 0.6)),),
+    )
     paths["reversed"] = BurnsPath.from_start_end(
         Rect(0, 0, 1, 1), Rect(0, 0, 0.5, 0.5), easing="linear"
     ).reversed()

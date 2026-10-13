@@ -441,7 +441,11 @@ class TestHold:
         assert path.evaluate(0.0) == path.evaluate(1.0)
 
     def test_a_hold_is_two_keyframes_so_it_is_valid_on_the_wire(self):
-        """The TS schema requires minItems 2; nothing here may emit one."""
+        """A hold is specified as two equal keyframes; every move emits at least two.
+
+        (A one-keyframe path is valid too — see ``test_wire_schema.py`` — but the
+        built-in moves keep to the canonical Start/End shape.)
+        """
         for name in MOVES:
             path = resolve_move(name, image=image(), aspect=A, seed=13)
             assert len(path.keyframes) >= 2, name
