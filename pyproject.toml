@@ -131,6 +131,9 @@ enabled = false
 [tool.wads.ci.quality.mypy]
 enabled = false
 
+[tool.wads.ci.install]
+extras = "dev"
+
 [tool.wads.ci.testing]
 enabled = true
 python_versions = [
