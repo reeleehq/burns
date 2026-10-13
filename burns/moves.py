@@ -265,9 +265,10 @@ def _zoom_move(mode: str) -> Callable[[_Frame], BurnsPath]:
 def _static(f: _Frame) -> BurnsPath:
     """A hold: two keyframes with equal rects.
 
-    Two rather than one because that is what the spec calls a hold, and because
-    the TypeScript schema requires at least two keyframes — a one-keyframe path
-    is valid Python and invalid on the wire, so nothing here emits one.
+    Two rather than one because that is what the spec calls a hold. (A
+    one-keyframe path is also valid, in Python, TypeScript and on the wire; the
+    built-in moves still emit the canonical two so a hold reads like any other
+    Start/End path to a UI that edits it.)
 
     ``zoom`` is honoured: a hold is a *static framing*, not necessarily the
     whole picture. Pass ``zoom=1.0`` for the untouched frame.

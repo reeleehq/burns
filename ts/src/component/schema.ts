@@ -101,7 +101,7 @@ export type ValueMeta = z.infer<typeof valueMetaSchema>;
 export const valueSchema = z
   .object({
     version: z.literal(1),
-    keyframes: z.array(keyframeSchema).min(2),
+    keyframes: z.array(keyframeSchema).min(1),
     interp: z.literal('linear'),
     easing: easingSchema,
     output_aspect: z.number().positive().nullable(),
