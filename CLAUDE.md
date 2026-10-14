@@ -4,7 +4,7 @@
 
 ## Part of the `an` framework
 
-burns is part of the `an` structured-animation framework (https://github.com/thorwhalen/an) and stays its own package. The direction and the open question on where the shared vocabulary lives are in https://github.com/thorwhalen/an/issues/257; this repo's issues are #23 (take the CSS easing curves from `an`'s `an/data/timing/easing.json` contract) and #24 (a state-driven Engine for `an` shots, and shared camera moves). In short:
+burns is part of the `an` structured-animation framework (https://github.com/thorwhalen/an) and stays its own package. The direction and the open question on where the shared vocabulary lives are in https://github.com/thorwhalen/an/issues/257; the easing curves are the CSS entries of `an`'s easing contract (#23: the TypeScript port reads them from the npm package `@thorwhalen/an-contract`, and both languages' tests assert the contract's sample values), and this repo's open issue is #24 (a state-driven Engine for `an` shots, and shared camera moves). In short:
 
 - A camera move is a move of a view through a parameter space. burns realises it as a **crop over pixels**: `push_in` shrinks the crop, so resolution is lost. `an`'s stage engine instead re-renders the scene into the rectangle (a zoom with no resolution loss), and `previz` (https://github.com/thorwhalen/previz, TypeScript) moves an n-dimensional parameter vector (an orbit camera, a chart's axis domain). Same names, same meaning, per-engine lowering.
 - burns' eight camera moves are meant to become entries in `an`'s vocabulary, next to `an`'s nine, in one table. Until that table exists, a change to a move's name or magnitude here should be checked against `an`'s moves (`push_in` exists in both, with different magnitudes today).

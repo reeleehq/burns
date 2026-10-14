@@ -55,6 +55,7 @@
   ],
   "devDependencies": {
     "@playwright/test": "^1.49.0",
+    "@thorwhalen/an-contract": "^1.8.0",
     "@types/dom-webcodecs": "^0.1.11",
     "@types/node": "^25.9.1",
     "tsup": "^8.0.0",
