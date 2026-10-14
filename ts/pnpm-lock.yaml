@@ -15,6 +15,9 @@ importers:
       '@playwright/test':
         specifier: ^1.49.0
         version: 1.60.0
+      '@thorwhalen/an-contract':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@types/dom-webcodecs':
         specifier: ^0.1.11
         version: 0.1.18
@@ -674,6 +677,9 @@ packages:
     resolution: {integrity: sha512-QVTUovf40zgTqlFVrKA1uXMVvU2QWEFWfAH8Wdc48IxLvrJMQVMBRjuQyUpzZCDkakImib9eVazbWlC6ksWtJw==}
     cpu: [x64]
     os: [win32]
+
+  '@thorwhalen/an-contract@1.8.0':
+    resolution: {integrity: sha512-4+fU/0b7aDyIGsv+EWpsXH7D0XAvF2FhYsLpEMmQG3NhlypUgYMUrFFyEmrQfqsXiPXvbCXMHuBX2rErQ0rMhQ==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -1487,6 +1493,8 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.60.4':
     optional: true
+
+  '@thorwhalen/an-contract@1.8.0': {}
 
   '@types/chai@5.2.3':
     dependencies:

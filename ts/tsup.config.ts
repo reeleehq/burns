@@ -11,4 +11,7 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   treeshake: true,
+  // The easing table is read from `an`'s contract at build time and inlined,
+  // so the published package carries no runtime JSON import.
+  noExternal: ['@thorwhalen/an-contract'],
 });

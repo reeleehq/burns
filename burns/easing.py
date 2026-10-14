@@ -26,6 +26,9 @@ EasingLike = Union[str, Callable[[float], float], Sequence[float]]
 
 # Canonical CSS cubic-bezier control points (verbatim from CSS Timing
 # Functions Level 1). Each maps a named easing to its (x1, y1, x2, y2).
+# These are the CSS entries of `an`'s shared easing contract (`easing.json`,
+# on npm as `@thorwhalen/an-contract`), which the TypeScript port reads
+# directly; `tests/test_an_contract.py` pins this table and its values to it.
 CSS_BEZIERS: dict[str, tuple[float, float, float, float]] = {
     "linear": (0.0, 0.0, 1.0, 1.0),
     "ease": (0.25, 0.1, 0.25, 1.0),

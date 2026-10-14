@@ -8,10 +8,21 @@
  * understood verbatim by CSS, Remotion, and GSAP. The cinematic default is
  * `"ease-in-out"`.
  *
+ * The named curves are not defined here: they are the CSS entries of `an`'s
+ * shared easing contract (`@thorwhalen/an-contract`, `easing.json`), its
+ * `css_hyphenated_curves` plus its `css_import_aliases` (CSS `ease`), bundled
+ * at build time. `test/an-contract.test.ts` asserts the curves against the
+ * contract's sample values.
+ *
  * The cubic-bezier solver uses the **same 60-iteration bisection** as the
  * Python reference, so the eased values are reproducible to ~2^-60 and the
  * golden vectors match across languages.
  */
+
+import {
+  css_hyphenated_curves as CONTRACT_CSS_CURVES,
+  css_import_aliases as CONTRACT_CSS_ALIASES,
+} from '@thorwhalen/an-contract/easing.json';
 
 export type EasingFn = (t: number) => number;
 export type EasingLike =
@@ -19,13 +30,34 @@ export type EasingLike =
   | EasingFn
   | readonly [number, number, number, number];
 
-/** Canonical CSS cubic-bezier control points (verbatim from CSS Timing L1). */
-export const CSS_BEZIERS: Record<string, [number, number, number, number]> = {
+type Bezier = [number, number, number, number];
+
+function asBezier(points: readonly number[]): Bezier {
+  if (points.length !== 4) {
+    throw new Error(`easing contract: expected 4 control values, got ${points}`);
+  }
+  return [...points] as Bezier;
+}
+
+/**
+ * CSS cubic-bezier control points by name: `linear`, plus every CSS curve of
+ * `an`'s easing contract (`ease-in`, `ease-out`, `ease-in-out`, and CSS `ease`
+ * through the contract's import alias).
+ */
+export const CSS_BEZIERS: Record<string, Bezier> = {
   linear: [0, 0, 1, 1],
-  ease: [0.25, 0.1, 0.25, 1],
-  'ease-in': [0.42, 0, 1, 1],
-  'ease-out': [0, 0, 0.58, 1],
-  'ease-in-out': [0.42, 0, 0.58, 1],
+  ...Object.fromEntries(
+    Object.entries(CONTRACT_CSS_ALIASES).map(([name, spec]) => [
+      name,
+      parseBezierArgs(spec),
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(CONTRACT_CSS_CURVES).map(([name, points]) => [
+      name,
+      asBezier(points),
+    ]),
+  ),
 };
 
 export const DFLT_EASING = 'ease-in-out';
