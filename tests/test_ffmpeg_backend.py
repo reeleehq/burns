@@ -30,12 +30,11 @@ from burns._ffmpeg import (
     SAMPLE_LADDER,
     FfmpegBackendError,
     default_ffmpeg_exe,
-    expected_frame_count,
     keyframes_for,
     sample_count,
 )
 from burns._frame import sample_frame
-from burns.backends import DFLT_BACKEND, RENDER_BACKENDS, get_backend
+from burns.backends import DFLT_BACKEND, frame_count, RENDER_BACKENDS, get_backend
 
 #: Above this, two renders differ only by resampler choice. Measured separation
 #: is wide: correct pairings score 43-52 dB and a one-window-off control scores 11.
@@ -117,15 +116,17 @@ def probe(video) -> tuple[int, int, int]:
     """
     import re
 
+    from burns._ffmpeg import probe_video
+
     proc = subprocess.run(
         [default_ffmpeg_exe(), "-hide_banner", "-i", str(video), "-f", "null", "-"],
         capture_output=True,
         text=True,
     )
     size = re.search(r"Stream #0:0.*?[ ,](\d{2,5})x(\d{2,5})", proc.stderr)
-    frames = re.findall(r"frame=\s*(\d+)", proc.stderr)
-    assert size and frames, f"could not read {video.name} from:\n{proc.stderr[-900:]}"
-    return int(size.group(1)), int(size.group(2)), int(frames[-1])
+    assert size, f"could not read {video.name} from:\n{proc.stderr[-900:]}"
+    frames, _ = probe_video(default_ffmpeg_exe(), video)
+    return int(size.group(1)), int(size.group(2)), frames
 
 
 class TestItIsRegistered:
@@ -223,7 +224,7 @@ class TestTheOutputIsWhatWasAskedFor:
             out_w=640,
             out_h=360,
         )
-        assert probe(video)[2] == expected_frame_count(3.0, 30) == 90
+        assert probe(video)[2] == frame_count(3.0, 30) == 90
 
     def test_a_wrong_frame_count_is_refused_naming_pillow(self, tmp_path, monkeypatch):
         monkeypatch.setattr("burns._ffmpeg.probe_video", lambda *a: (75, 30.0))
@@ -242,15 +243,31 @@ class TestTheOutputIsWhatWasAskedFor:
                 fps=30,
             )
 
-    def test_less_than_one_frame_is_refused(self, tmp_path):
-        with pytest.raises(FfmpegBackendError, match="less than one frame"):
-            render(
+    @pytest.mark.parametrize(
+        "duration,fps", [(1.99, 30), (0.01, 30), (2.01, 25), (0.29, 100)]
+    )
+    def test_both_backends_share_one_frame_count(self, tmp_path, duration, fps):
+        """burns#33: moviepy floors, so pillow used to differ from ffmpeg."""
+        counts = {}
+        for backend in ("pillow", "ffmpeg"):
+            video = render(
                 smooth_image(),
                 BurnsPath.push_in(1.2),
-                tmp_path / "z.mp4",
-                duration=0.01,
-                fps=30,
+                tmp_path / f"{backend}.mp4",
+                duration=duration,
+                fps=fps,
+                backend=backend,
             )
+            counts[backend] = probe(video)[2]
+        assert counts["pillow"] == counts["ffmpeg"] == frame_count(duration, fps)
+
+    def test_a_path_that_looks_like_progress_output_is_counted_correctly(
+        self, tmp_path
+    ):
+        video = render(
+            smooth_image(), BurnsPath.push_in(1.2), tmp_path / "frame=7.mp4", fps=25
+        )
+        assert probe(video)[2] == 25
 
     def test_a_static_path_still_renders(self, tmp_path):
         """No zoom, no pan — it takes the `crop` branch, and `crop` emits the
