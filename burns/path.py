@@ -20,7 +20,11 @@ The model mirrors the professional NLE consensus and Remotion's
   motion *speed*. Default ``"ease-in-out"`` (the cinematic norm).
 - **output_aspect** is metadata: the aspect ratio the render should fill. When
   it differs from the source image's AR the renderer cover-crops; when ``None``
-  the output AR equals the image's. It never affects :meth:`evaluate`.
+  the output AR equals the image's. :meth:`evaluate` never reads it: it only
+  travels with the path. The *constructors* (:meth:`BurnsPath.push_in`,
+  :func:`ken_burns_path`) do read it, to shape the rectangles they build, and a
+  rect's ``w / h`` is in image-normalised units, so they also need the source's
+  aspect (``image_aspect``) to get a window that really has the output's shape.
 
 :func:`ken_burns_path` is a convenience generator: it maps a small intent
 vocabulary (a sequence index, a style, a zoom, a pan) to a cohesive, fully
@@ -31,6 +35,7 @@ non-repetitive motion without hand-authoring rectangles.
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Sequence, Union
@@ -44,6 +49,47 @@ Keyframe = tuple[float, Rect]
 SPEC_VERSION = 1
 
 _VALID_STYLES = ("push", "drift")
+
+
+def window_aspect(
+    output_aspect: Union[float, None], image_aspect: Union[float, None] = None
+) -> float:
+    """The ``w / h`` a rect needs, in image-normalised units, to show ``output_aspect``.
+
+    A rect's sides are fractions of the image's own sides, so a window that is
+    16:9 on screen over a 16:9 image is the *square* ``w == h == 1`` in these
+    units. The ratio is ``output_aspect / image_aspect``.
+
+    ``image_aspect=None`` keeps the original behaviour, which treats the source
+    as square and is only right for a square source; it emits a
+    :class:`FutureWarning`. Non-positive or non-finite aspects raise.
+
+    Examples:
+        >>> window_aspect(16 / 9, 16 / 9)  # same shape: the full frame
+        1.0
+        >>> round(window_aspect(16 / 9, 4 / 3), 4)  # 4:3 source, 16:9 delivery
+        1.3333
+        >>> window_aspect(None, 4 / 3)
+        1.0
+    """
+    for name, value in (
+        ("output_aspect", output_aspect),
+        ("image_aspect", image_aspect),
+    ):
+        if value is not None and not (0 < value < math.inf):
+            raise ValueError(f"{name} must be a positive finite number, got {value!r}")
+    if output_aspect is None:
+        return 1.0
+    if image_aspect is None:
+        warnings.warn(
+            "output_aspect without image_aspect treats the source as square, so a "
+            "non-square image is cropped at zoom 1.0 (burns#30). Pass "
+            "image_aspect=width / height; omitting it will become an error.",
+            FutureWarning,
+            stacklevel=4,
+        )
+        return output_aspect
+    return output_aspect / image_aspect
 
 
 @dataclass(frozen=True)
@@ -253,16 +299,26 @@ class BurnsPath:
         to: tuple[float, float] = (0.5, 0.5),
         easing: EasingLike = DFLT_EASING,
         output_aspect: Union[float, None] = None,
+        image_aspect: Union[float, None] = None,
     ) -> "BurnsPath":
         """The 90%-case constructor: a slow push from the full image toward
         ``to`` at ``zoom``.
 
+        Args:
+            output_aspect: the delivery's ``width / height`` (see :class:`BurnsPath`).
+            image_aspect: the source's ``width / height``. **Pass it whenever
+                ``output_aspect`` is set**; without it the source is treated as
+                square, and on any other shape the zoom-1.0 window already
+                crops the image (a 16:9 source loses ~44% of its height).
+
         Examples:
             >>> round(BurnsPath.push_in().evaluate(1.0).zoom, 4)
             1.3
+            >>> BurnsPath.push_in(output_aspect=16 / 9, image_aspect=16 / 9).evaluate(0.0)
+            Rect(x=0.0, y=0.0, w=1.0, h=1.0)
         """
         cx, cy = to
-        aspect = output_aspect if output_aspect is not None else 1.0
+        aspect = window_aspect(output_aspect, image_aspect)
         return cls.from_start_end(
             Rect(0.0, 0.0, 1.0, 1.0)
             if output_aspect is None
@@ -288,6 +344,7 @@ def ken_burns_path(
     pan: float = 0.03,
     easing: EasingLike = DFLT_EASING,
     output_aspect: Union[float, None] = None,
+    image_aspect: Union[float, None] = None,
 ) -> BurnsPath:
     """A deterministic :class:`BurnsPath` for the ``index``-th image of a sequence.
 
@@ -316,6 +373,9 @@ def ken_burns_path(
         easing: CSS timing function or callable. Default ``"ease-in-out"`` — the
             cinematic slow-in/slow-out. Pass ``"linear"`` for constant velocity.
         output_aspect: aspect ratio the render should fill (``None`` = match image).
+        image_aspect: the source's ``width / height``. Pass it whenever
+            ``output_aspect`` is set (see :meth:`BurnsPath.push_in`); without it
+            the source is treated as square.
 
     Returns:
         A :class:`BurnsPath` (two keyframes — Start and End).
@@ -333,7 +393,11 @@ def ken_burns_path(
             f"ken_burns_path: style must be one of {_VALID_STYLES}, got {style!r}"
         )
     start, end = _endpoints_for_style(
-        style, index, zoom=zoom, pan=pan, output_aspect=output_aspect
+        style,
+        index,
+        zoom=zoom,
+        pan=pan,
+        aspect=window_aspect(output_aspect, image_aspect),
     )
     return BurnsPath.from_start_end(
         start, end, easing=easing, output_aspect=output_aspect
@@ -346,10 +410,12 @@ def _endpoints_for_style(
     *,
     zoom: float,
     pan: float,
-    output_aspect: Union[float, None],
+    aspect: float,
 ) -> tuple[Rect, Rect]:
-    """The ``(start_rect, end_rect)`` for one image under one style."""
-    aspect = output_aspect if output_aspect is not None else 1.0
+    """The ``(start_rect, end_rect)`` for one image under one style.
+
+    ``aspect`` is the window's image-normalised ``w / h`` (:func:`window_aspect`).
+    """
     if style == "push":
         # Focal direction cycles through compass octants per index.
         angle = (index * 2 + 1) * (math.pi / 4)
@@ -368,7 +434,9 @@ def _endpoints_for_style(
     end_cx = round(0.5 + direction * half, 4)
     # Smallest zoom whose window can reach 0.5 ± half, plus headroom so the
     # slide reads as motion rather than riding the edges.
-    drift_zoom = round(1.0 / (1.0 - 2.0 * half) + 0.05, 4)
+    # A window narrower than the frame (aspect < 1) already spans only
+    # ``aspect`` of the width at zoom 1.0, so it needs correspondingly less.
+    drift_zoom = round(max(1.0, min(1.0, aspect) / (1.0 - 2.0 * half)) + 0.05, 4)
     return (
         Rect.from_center_zoom(start_cx, 0.5, drift_zoom, aspect=aspect),
         Rect.from_center_zoom(end_cx, 0.5, drift_zoom, aspect=aspect),

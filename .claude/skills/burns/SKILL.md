@@ -50,7 +50,7 @@ Pure, time-parameterized, frame-count-free. **`path.evaluate(t) -> Rect`** for
 
 - `BurnsPath.from_start_end(start, end, *, easing="ease-in-out", output_aspect=None)`
   — the canonical two-rectangle (Start → End) case.
-- `BurnsPath.push_in(zoom=1.3, *, to=(0.5,0.5), easing=..., output_aspect=None)`
+- `BurnsPath.push_in(zoom=1.3, *, to=(0.5,0.5), easing=..., output_aspect=None, image_aspect=None)`
   — the 90%-case one-liner.
 - `BurnsPath(keyframes=((t, rect), ...), easing=..., output_aspect=...)` — N
   keyframes (a hold = two keyframes with equal rects).
@@ -66,9 +66,9 @@ Easing is a CSS timing function — `"linear"`, `"ease"`, `"ease-in"`,
 **`output_aspect`** is the AR the render should fill, *independent of the source
 image* — set it to `16/9` to make a widescreen clip from a portrait photo. When
 it differs from the image AR the renderer center-cover-crops (no stretch). `None`
-= match the image (the legacy behavior).
+= match the image (the legacy behavior). **When you set `output_aspect` on `push_in` / `ken_burns_path`, also pass `image_aspect` (source width/height)**: rect sides are image fractions, so without it the source is assumed square and a 16:9 still loses ~44% of its height at zoom 1.0.
 
-## `ken_burns_path(index, *, style="push", zoom=1.10, pan=0.03, easing="ease-in-out", output_aspect=None)`
+## `ken_burns_path(index, *, style="push", zoom=1.10, pan=0.03, easing="ease-in-out", output_aspect=None, image_aspect=None)`
 
 Build a cohesive, **deterministic** `BurnsPath` for the `index`-th image of a
 sequence — no hand-authored rectangles. Same args → same path. **Duration is
@@ -245,7 +245,7 @@ a `BurnsPath`; `duration` is seconds. Returns the output `Path` (auto-named
 ken_burns_video("photo.jpg")  # 2s default push-in
 ken_burns_video("photo.jpg", ken_burns_path(1), duration=5.0, saveas="out.mp4")
 ken_burns_video(
-    "portrait.jpg", BurnsPath.push_in(1.4, output_aspect=16 / 9), duration=6
+    "portrait.jpg", BurnsPath.push_in(1.4, output_aspect=16 / 9, image_aspect=3 / 4), duration=6
 )
 ```
 
