@@ -402,8 +402,11 @@ def ffmpeg_backend(
             str(still),
             "-vf",
             fragment,
-            # Cap the frame count; the input is looped, so this ends the clip.
-            # burns#31 saw 225 frames for 270, once, unreproduced: verified below.
+            # Pin the output clock and cap the count (the input is looped).
+            # Without `-r`, a Linux ffmpeg 6.1 build emitted 25 fps for a
+            # requested 30 (burns#31: 225 frames for 270). Verified below.
+            "-r",
+            str(fps),
             "-frames:v",
             str(expected),
             *_encode_args(codec, write_kwargs),
