@@ -27,7 +27,7 @@ from PIL import Image as PIL_Image
 
 from burns._frame import output_size_for, sample_frame
 from burns._util import _auto_video_path, _ensure_output_path, _non_colliding_key
-from burns.backends import DFLT_BACKEND, get_backend
+from burns.backends import DFLT_BACKEND, frame_exact_clip, get_backend
 from burns.path import BurnsPath, PanelInput
 from burns.rect import Rect
 
@@ -232,7 +232,7 @@ def ken_burns_film(
     if not output_path.suffix or output_path.suffix.lower() not in _VIDEO_EXTS:
         output_path = output_path.with_suffix(".mp4")
 
-    clip = mp.VideoClip(make_frame, duration=film_duration).with_fps(fps)
+    clip = frame_exact_clip(make_frame, film_duration, fps)
     if audio_path is not None:
         clip = clip.with_audio(mp.AudioFileClip(str(audio_path)))
 

@@ -66,6 +66,7 @@ import numpy as np
 from PIL import Image as PIL_Image
 
 from burns._frame import sample_box_exact
+from burns.backends import frame_count
 from burns.path import BurnsPath
 
 #: How far the linear rebuild of an eased path may stray from the path itself,
@@ -100,8 +101,10 @@ DFLT_WRITE_KWARGS = {"bitrate": "5000k", "preset": "medium"}
 WRITE_KWARGS_IGNORED = ("logger",)
 
 
-#: What ffmpeg's progress line says about a stream it has finished decoding.
-_FRAME_COUNT_RE = re.compile(r"frame=\s*(\d+)")
+#: The machine-readable progress ffmpeg writes with ``-progress``: one
+#: ``frame=N`` per report, the last being the total. Unlike the human stats line
+#: it does not depend on the build, a tty, or a path containing "frame=".
+_FRAME_COUNT_RE = re.compile(r"^frame=(\d+)$", re.MULTILINE)
 #: The stream's frame rate, as ffmpeg's input banner prints it.
 _STREAM_FPS_RE = re.compile(r"Video:.*?,\s*([\d.]+) fps")
 
@@ -115,22 +118,21 @@ class FfmpegBackendError(RuntimeError):
     """This path or these options cannot be rendered by the ffmpeg backend."""
 
 
-def expected_frame_count(duration: float, fps: int) -> int:
-    """The frames a ``duration``-second clip at ``fps`` must have (rounded, as the fleet's assemblers do)."""
-    return round(duration * fps)
-
-
 def probe_video(binary: str, video: Path) -> tuple[int, float]:
     """``(frame count, frame rate)`` of ``video``, measured by ffmpeg itself.
 
-    Decodes the stream to the null muxer (a stream copy omits ``frame=`` on some
-    Linux builds) and reads the final ``frame=`` of the
-    progress line, so it needs no `ffprobe` — the bundled binary has none.
+    Decodes the stream to the null muxer (a stream copy omits the count on some
+    Linux builds) and reads the last ``frame=`` of ``-progress``, so it needs no
+    `ffprobe` — the bundled binary has none.
     """
     proc = subprocess.run(
         [
             binary,
             "-hide_banner",
+            "-nostdin",
+            "-nostats",
+            "-progress",
+            "pipe:1",
             "-i",
             str(video),
             "-map",
@@ -141,8 +143,10 @@ def probe_video(binary: str, video: Path) -> tuple[int, float]:
         ],
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
-    counts = _FRAME_COUNT_RE.findall(proc.stderr)
+    counts = _FRAME_COUNT_RE.findall(proc.stdout)
     if proc.returncode != 0 or not counts:
         raise FfmpegBackendError(
             f"could not count the frames of {video.name}:\n{proc.stderr.strip()[-600:]}"
@@ -376,11 +380,7 @@ def ffmpeg_backend(
 
     binary = default_ffmpeg_exe() if ffmpeg_exe is None else ffmpeg_exe
     output = Path(output)
-    expected = expected_frame_count(duration, fps)
-    if expected < 1:
-        raise FfmpegBackendError(
-            f"duration={duration} s at {fps} fps is less than one frame"
-        )
+    expected = frame_count(duration, fps)
     with tempfile.TemporaryDirectory(prefix="burns-ffmpeg-") as tmp:
         # The backend is handed a decoded array, never the source path, so the
         # image has to be re-materialised before ffmpeg can open it. PNG because

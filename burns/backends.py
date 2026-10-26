@@ -26,6 +26,38 @@ from burns._frame import sample_frame
 from burns.path import BurnsPath
 
 
+def frame_count(duration: float, fps: int) -> int:
+    """The frames a ``duration``-second clip at ``fps`` has, for every backend.
+
+    The single definition. It rounds, as the fleet's other assemblers do, and
+    never returns less than one. moviepy alone would floor (1.99 s at 30 fps is
+    59 frames), which is why :func:`pillow_backend` sizes its clip from this.
+
+    Examples:
+        >>> frame_count(9.0, 30), frame_count(1.99, 30), frame_count(0.001, 30)
+        (270, 60, 1)
+    """
+    return max(1, round(duration * fps))
+
+
+#: Fraction of a frame added to a clip's duration. moviepy takes
+#: ``int(duration * fps)`` frames, so any value strictly between 0 and 1 makes
+#: ``n / fps`` land on ``n`` despite float noise; a quarter keeps the clip
+#: well inside the next frame.
+_FRAME_MARGIN = 0.25
+
+
+def frame_exact_clip(make_frame: Callable, duration: float, fps: int) -> mp.VideoClip:
+    """A moviepy clip with exactly ``frame_count(duration, fps)`` frames.
+
+    Used by every moviepy-based render path, so they share one frame count.
+    """
+    n_frames = frame_count(duration, fps)
+    return mp.VideoClip(make_frame, duration=(n_frames + _FRAME_MARGIN) / fps).with_fps(
+        fps
+    )
+
+
 class RenderBackend(Protocol):
     """Encode one image + :class:`BurnsPath` into a video file at ``output``.
 
@@ -79,7 +111,7 @@ def pillow_backend(
         # moviepy drives t in seconds; the path's clock is normalized.
         return sample_frame(path, t / duration, img_np, img_w, img_h, out_w, out_h)
 
-    clip = mp.VideoClip(make_frame, duration=duration).with_fps(fps)
+    clip = frame_exact_clip(make_frame, duration, fps)
     write_kwargs.setdefault("bitrate", "5000k")
     write_kwargs.setdefault("preset", "medium")
     write_kwargs.setdefault("logger", None)
