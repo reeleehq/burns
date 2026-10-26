@@ -33,6 +33,11 @@ vocabulary (a sequence index, a style, a zoom, a pan) to a cohesive, fully
 deterministic [`BurnsPath`](#burns.path.BurnsPath), so callers animating a sequence of images get
 non-repetitive motion without hand-authoring rectangles.
 
+### Module Attributes
+
+| [`ImageAspect`](#burns.path.ImageAspect)   | its `width / height`, or its `(width, height)` size.   |
+|----------------------------------------------------------------|--------------------------------------------------------|
+
 ### Functions
 
 | [`ken_burns_path`](#burns.path.ken_burns_path)(index, \*[, style, zoom, pan, ...])   | A deterministic [`BurnsPath`](#burns.path.BurnsPath) for the `index`-th image of a sequence.   |
@@ -144,7 +149,7 @@ The 90%-case constructor: a slow push from the full image toward
 
 * **Parameters:**
   * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the delivery’s `width / height` (see [`BurnsPath`](#burns.path.BurnsPath)).
-  * **image_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the source’s `width / height`. \*\*Pass it whenever
+  * **image_aspect** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`None`](https://docs.python.org/3/builtins/constants.html#None)]) – the source’s `width / height` (or its PIL `(width, height)` size, not NumPy’s `.shape`). \*\*Pass it whenever
     `output_aspect` is set\*\*; without it the source is treated as
     square, and on any other shape the zoom-1.0 window already
     crops the image (a 16:9 source loses ~44% of its height).
@@ -197,6 +202,15 @@ cannot be serialized and raises — use a CSS spec for paths that travel.
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
+### burns.path.ImageAspect
+
+its `width / height`, or its `(width, height)` size.
+
+* **Type:**
+  A source’s shape
+
+alias of [`float`](https://docs.python.org/3/builtins/functions.html#float) | [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
+
 ### burns.path.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None, image_aspect=None)
 
 A deterministic [`BurnsPath`](#burns.path.BurnsPath) for the `index`-th image of a sequence.
@@ -226,7 +240,7 @@ Two styles:
   * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. Default `"ease-in-out"` — the
     cinematic slow-in/slow-out. Pass `"linear"` for constant velocity.
   * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – aspect ratio the render should fill (`None` = match image).
-  * **image_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the source’s `width / height`. Pass it whenever
+  * **image_aspect** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`None`](https://docs.python.org/3/builtins/constants.html#None)]) – the source’s `width / height`. Pass it whenever
     `output_aspect` is set (see [`BurnsPath.push_in()`](#burns.path.BurnsPath.push_in)); without it
     the source is treated as square.
 * **Return type:**
@@ -256,6 +270,8 @@ units. The ratio is `output_aspect / image_aspect`.
 `image_aspect=None` keeps the original behaviour, which treats the source
 as square and is only right for a square source; it emits a
 [`FutureWarning`](https://docs.python.org/3/builtins/exceptions.html#FutureWarning). Non-positive or non-finite aspects raise.
+`image_aspect` may also be the image’s `(width, height)` size, i.e. PIL’s
+`.size`; **not** NumPy’s `.shape`, which is `(height, width)`.
 
 ### Examples
 
@@ -266,6 +282,8 @@ as square and is only right for a square source; it emits a
 1.3333
 >>> window_aspect(None, 4 / 3)
 1.0
+>>> round(window_aspect(16 / 9, (1600, 1200)), 4)  # the size works too
+1.3333
 ```
 
 * **Return type:**

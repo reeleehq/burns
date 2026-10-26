@@ -4,6 +4,12 @@ burns.path
 .. automodule:: burns.path
 
    
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      ImageAspect
+   
    .. rubric:: Functions
 
    .. autosummary::
