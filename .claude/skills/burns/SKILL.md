@@ -245,7 +245,9 @@ a `BurnsPath`; `duration` is seconds. Returns the output `Path` (auto-named
 ken_burns_video("photo.jpg")  # 2s default push-in
 ken_burns_video("photo.jpg", ken_burns_path(1), duration=5.0, saveas="out.mp4")
 ken_burns_video(
-    "portrait.jpg", BurnsPath.push_in(1.4, output_aspect=16 / 9, image_aspect=3 / 4), duration=6
+    "portrait.jpg",
+    BurnsPath.push_in(1.4, output_aspect=16 / 9, image_aspect=3 / 4),
+    duration=6,
 )
 ```
 
