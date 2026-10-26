@@ -31,7 +31,7 @@ from __future__ import annotations
 from typing import Any, Callable, Iterable, Optional, Sequence, Union
 
 from burns.easing import DFLT_EASING, EasingLike
-from burns.path import BurnsPath
+from burns.path import BurnsPath, window_aspect
 from burns.rect import Rect
 
 Box = tuple[float, float, float, float]
@@ -115,10 +115,8 @@ def axis_maxima(
     """
     if not output_aspect:
         return (1.0, 1.0)
-    A = float(output_aspect)
-    if img_w / img_h >= A:  # image wider than output: width is the limit
-        return (A * img_h / img_w, 1.0)
-    return (1.0, (img_w / A) / img_h)
+    a = window_aspect(float(output_aspect), (img_w, img_h))
+    return (a, 1.0) if a < 1.0 else (1.0, 1.0 / a)
 
 
 def keep_window(

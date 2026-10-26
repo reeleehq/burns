@@ -262,3 +262,43 @@ class TestImageAspect:
         with pytest.warns(FutureWarning, match="image_aspect"):
             legacy = BurnsPath.push_in(1.2, output_aspect=16 / 9).evaluate(0.0)
         assert legacy.h == pytest.approx(0.5625)
+
+    def test_a_size_works_in_place_of_a_ratio(self):
+        by_size = BurnsPath.push_in(
+            1.2, output_aspect=16 / 9, image_aspect=(1600, 1200)
+        )
+        by_ratio = BurnsPath.push_in(1.2, output_aspect=16 / 9, image_aspect=4 / 3)
+        assert by_size == by_ratio
+        # a size is (w, h): swapping it is a different, portrait, source
+        swapped = BurnsPath.push_in(
+            1.2, output_aspect=16 / 9, image_aspect=(1200, 1600)
+        )
+        assert swapped != by_size
+
+    @pytest.mark.parametrize("bad", [(1600, 0), (-1600, -1200), (1, 2, 3), (1600,)])
+    def test_a_bad_size_is_refused_with_what_was_passed(self, bad):
+        with pytest.raises(ValueError, match="width, height"):
+            BurnsPath.push_in(output_aspect=16 / 9, image_aspect=bad)
+
+
+class TestAxisMaximaIsWindowAspect:
+    @pytest.mark.parametrize(
+        "size", [(1600, 900), (900, 1600), (1600, 1200), (3500, 500)]
+    )
+    @pytest.mark.parametrize("aspect", [1.0, 16 / 9, 9 / 16, 2.39, 4 / 3])
+    def test_it_matches_the_original_formula_and_never_warns(self, size, aspect):
+        import warnings
+
+        from burns.content import axis_maxima
+
+        w, h = size
+        old = (aspect * h / w, 1.0) if w / h >= aspect else (1.0, (w / aspect) / h)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            got = axis_maxima(w, h, aspect)
+        assert got == pytest.approx(old, abs=1e-12)
+
+    def test_matching_shapes_are_exactly_the_full_frame(self):
+        from burns.content import axis_maxima
+
+        assert axis_maxima(1920, 1080, 1920 / 1080) == (1.0, 1.0)
