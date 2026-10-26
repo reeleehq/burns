@@ -51,8 +51,13 @@ SPEC_VERSION = 1
 _VALID_STYLES = ("push", "drift")
 
 
+#: A source's shape: its ``width / height``, or its ``(width, height)`` size.
+ImageAspect = Union[float, tuple[float, float]]
+
+
 def window_aspect(
-    output_aspect: Union[float, None], image_aspect: Union[float, None] = None
+    output_aspect: Union[float, None],
+    image_aspect: Union[ImageAspect, None] = None,
 ) -> float:
     """The ``w / h`` a rect needs, in image-normalised units, to show ``output_aspect``.
 
@@ -63,6 +68,8 @@ def window_aspect(
     ``image_aspect=None`` keeps the original behaviour, which treats the source
     as square and is only right for a square source; it emits a
     :class:`FutureWarning`. Non-positive or non-finite aspects raise.
+    ``image_aspect`` may also be the image's ``(width, height)`` size, i.e. PIL's
+    ``.size``; **not** NumPy's ``.shape``, which is ``(height, width)``.
 
     Examples:
         >>> window_aspect(16 / 9, 16 / 9)  # same shape: the full frame
@@ -71,7 +78,16 @@ def window_aspect(
         1.3333
         >>> window_aspect(None, 4 / 3)
         1.0
+        >>> round(window_aspect(16 / 9, (1600, 1200)), 4)  # the size works too
+        1.3333
     """
+    if isinstance(image_aspect, Sequence) and not isinstance(image_aspect, str):
+        if len(image_aspect) != 2 or not all(v > 0 for v in image_aspect):
+            raise ValueError(
+                "image_aspect size must be (width, height) with both > 0, "
+                f"got {image_aspect!r}"
+            )
+        image_aspect = image_aspect[0] / image_aspect[1]
     for name, value in (
         ("output_aspect", output_aspect),
         ("image_aspect", image_aspect),
@@ -299,14 +315,14 @@ class BurnsPath:
         to: tuple[float, float] = (0.5, 0.5),
         easing: EasingLike = DFLT_EASING,
         output_aspect: Union[float, None] = None,
-        image_aspect: Union[float, None] = None,
+        image_aspect: Union[ImageAspect, None] = None,
     ) -> "BurnsPath":
         """The 90%-case constructor: a slow push from the full image toward
         ``to`` at ``zoom``.
 
         Args:
             output_aspect: the delivery's ``width / height`` (see :class:`BurnsPath`).
-            image_aspect: the source's ``width / height``. **Pass it whenever
+            image_aspect: the source's ``width / height`` (or its PIL ``(width, height)`` size, not NumPy's ``.shape``). **Pass it whenever
                 ``output_aspect`` is set**; without it the source is treated as
                 square, and on any other shape the zoom-1.0 window already
                 crops the image (a 16:9 source loses ~44% of its height).
@@ -344,7 +360,7 @@ def ken_burns_path(
     pan: float = 0.03,
     easing: EasingLike = DFLT_EASING,
     output_aspect: Union[float, None] = None,
-    image_aspect: Union[float, None] = None,
+    image_aspect: Union[ImageAspect, None] = None,
 ) -> BurnsPath:
     """A deterministic :class:`BurnsPath` for the ``index``-th image of a sequence.
 
