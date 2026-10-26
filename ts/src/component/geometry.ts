@@ -19,6 +19,7 @@
 
 import { Rect } from '../rect.js';
 import type { AspectRatio, RectData } from './schema.js';
+import { windowAspect } from '../path.js';
 
 /** The image's pixel aspect ratio `width / height`. */
 export function imageAspectOf(width: number, height: number): number {
@@ -37,7 +38,7 @@ export function aspectValue(ar: AspectRatio): number {
  * user framed, because its *pixel* aspect equals the output aspect.
  */
 export function lockRatio(outputAspect: AspectRatio, imageAspect: number): number {
-  return aspectValue(outputAspect) / imageAspect;
+  return windowAspect(aspectValue(outputAspect), imageAspect);
 }
 
 /** Reduce a `num / den` ratio to lowest terms (for display, e.g. `16:9`). */

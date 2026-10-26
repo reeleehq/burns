@@ -131,6 +131,73 @@ def _evaluate_vectors(paths: dict[str, BurnsPath]) -> list[dict[str, Any]]:
     return vectors
 
 
+#: Constructor calls, pinned with their arguments (snake_case, as in Python), so
+#: a port's *constructors* are checked, not only the paths they produce. Every
+#: one sets ``output_aspect`` together with ``image_aspect`` (burns#30/#34).
+CONSTRUCTOR_CALLS: tuple[tuple[str, str, dict[str, Any]], ...] = (
+    (
+        "push_in_16x9_on_16x9",
+        "push_in",
+        dict(zoom=1.2, to=(0.45, 0.5), output_aspect=16 / 9, image_aspect=16 / 9),
+    ),
+    (
+        "push_in_16x9_on_4x3",
+        "push_in",
+        dict(zoom=1.3, output_aspect=16 / 9, image_aspect=4 / 3),
+    ),
+    (
+        "push_in_9x16_on_16x9",
+        "push_in",
+        dict(zoom=1.4, to=(0.6, 0.4), output_aspect=9 / 16, image_aspect=16 / 9),
+    ),
+    (
+        "kbp_push_odd_16x9_on_4x3",
+        "ken_burns_path",
+        dict(index=1, output_aspect=16 / 9, image_aspect=4 / 3),
+    ),
+    (
+        "kbp_push_even_square_on_16x9",
+        "ken_burns_path",
+        dict(index=2, output_aspect=1.0, image_aspect=16 / 9),
+    ),
+    (
+        "kbp_drift_16x9_on_4x3",
+        "ken_burns_path",
+        dict(index=1, style="drift", output_aspect=16 / 9, image_aspect=4 / 3),
+    ),
+    (
+        "kbp_drift_9x16_on_16x9",
+        "ken_burns_path",
+        dict(
+            index=1, style="drift", pan=0.3, output_aspect=9 / 16, image_aspect=16 / 9
+        ),
+    ),
+)
+
+
+def build_constructor_path(fn: str, args: dict[str, Any]) -> BurnsPath:
+    """Call the named constructor with ``args`` (`tests/test_golden.py` keeps its own copy, as an independent check)."""
+    args = dict(args)
+    if fn == "push_in":
+        return BurnsPath.push_in(**args)
+    return ken_burns_path(args.pop("index"), **args)
+
+
+def _constructor_vectors() -> list[dict[str, Any]]:
+    """``(constructor, args) -> BurnsPath`` vectors."""
+    return [
+        {
+            "name": name,
+            "fn": fn,
+            "args": {
+                k: list(v) if isinstance(v, tuple) else v for k, v in args.items()
+            },
+            "path": build_constructor_path(fn, args).to_dict(),
+        }
+        for name, fn, args in CONSTRUCTOR_CALLS
+    ]
+
+
 def _pixel_box_cases(
     paths: dict[str, BurnsPath],
 ) -> list[tuple[str, BurnsPath, tuple[int, int]]]:
@@ -189,6 +256,7 @@ def build_fixture() -> dict[str, Any]:
         "t_samples": list(T_SAMPLES),
         "evaluate": _evaluate_vectors(paths),
         "pixel_box": _pixel_box_vectors(paths),
+        "constructors": _constructor_vectors(),
     }
 
 

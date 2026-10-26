@@ -7,7 +7,7 @@
  * job is {@link BurnsPath.evaluate}: a normalized clock time `t in [0, 1]` maps
  * to the {@link Rect} viewport at that instant. Easing is composed over the
  * geometry (`evaluate(t) === geometry(easing(t))`); `outputAspect` is render
- * metadata and never affects `evaluate`.
+ * metadata that `evaluate` never reads (the constructors do, with `imageAspect`).
  *
  * {@link BurnsPath.toDict} / {@link BurnsPath.fromDict} are the JSON wire format
  * shared with Python — identical key names and shape — so a path serialized by
@@ -46,6 +46,61 @@ export interface BurnsPathOptions {
   interp?: string;
   outputAspect?: number | null;
   version?: number;
+}
+
+/** A source's shape: its `width / height`, or its `[width, height]` size. */
+export type ImageAspect = number | readonly [number, number];
+
+let warnedLegacyAspect = false;
+
+/**
+ * The `w / h` a rect needs, in image-normalised units, to show `outputAspect`
+ * (port of `burns.path.window_aspect`). A rect's sides are fractions of the
+ * image's own, so a 16:9 window over a 16:9 image is the square `w == h == 1`;
+ * the ratio is `outputAspect / imageAspect`.
+ *
+ * Without `imageAspect` the source is treated as square (the original
+ * behaviour; only right for a square source) and a warning is logged once.
+ */
+export function windowAspect(
+  outputAspect: number | null,
+  imageAspect: ImageAspect | null = null,
+): number {
+  let image: number | null = null;
+  if (imageAspect !== null) {
+    if (typeof imageAspect !== 'number') {
+      const [w, h] = imageAspect;
+      if (imageAspect.length !== 2 || !(w > 0 && h > 0) || typeof w !== 'number' || typeof h !== 'number') {
+        throw new Error(
+          `imageAspect size must be (width, height) with both > 0, got ${JSON.stringify(imageAspect)}`,
+        );
+      }
+      image = w / h;
+    } else {
+      image = imageAspect;
+    }
+  }
+  for (const [name, value] of [
+    ['outputAspect', outputAspect],
+    ['imageAspect', image],
+  ] as const) {
+    if (value !== null && !(value > 0 && Number.isFinite(value))) {
+      throw new Error(`${name} must be a positive finite number, got ${value}`);
+    }
+  }
+  if (outputAspect === null) return 1;
+  if (image === null) {
+    if (!warnedLegacyAspect) {
+      warnedLegacyAspect = true;
+      console.warn(
+        'burns: outputAspect without imageAspect treats the source as square, so a ' +
+          'non-square image is cropped at zoom 1.0 (burns#30). Pass imageAspect = ' +
+          'width / height; omitting it will become an error.',
+      );
+    }
+    return outputAspect;
+  }
+  return outputAspect / image;
 }
 
 export class BurnsPath {
@@ -194,20 +249,25 @@ export class BurnsPath {
     );
   }
 
-  /** A slow push from the full image toward `to` at `zoom` (the 90% case). */
+  /**
+   * A slow push from the full image toward `to` at `zoom` (the 90% case).
+   * Pass `imageAspect` (the source's width/height) whenever `outputAspect` is set.
+   */
   static pushIn({
     zoom = 1.3,
     to = [0.5, 0.5],
     easing = DFLT_EASING,
     outputAspect = null,
+    imageAspect = null,
   }: {
     zoom?: number;
     to?: readonly [number, number];
     easing?: EasingLike;
     outputAspect?: number | null;
+    imageAspect?: ImageAspect | null;
   } = {}): BurnsPath {
     const [cx, cy] = to;
-    const aspect = outputAspect ?? 1;
+    const aspect = windowAspect(outputAspect, imageAspect);
     const start =
       outputAspect === null
         ? new Rect(0, 0, 1, 1)
@@ -227,7 +287,8 @@ export class BurnsPath {
  * **odd indices push in, even indices pull out**, focal direction rotating
  * through compass octants. `style="drift"`: pure horizontal pan at a constant
  * zoom, alternating direction per index (`zoom` ignored). Per-index
- * deterministic: identical args always return an identical path.
+ * deterministic: identical args always return an identical path. Pass
+ * `imageAspect` (the source's width/height) whenever `outputAspect` is set.
  */
 export function kenBurnsPath(
   index: number,
@@ -237,12 +298,14 @@ export function kenBurnsPath(
     pan = 0.03,
     easing = DFLT_EASING,
     outputAspect = null,
+    imageAspect = null,
   }: {
     style?: Style;
     zoom?: number;
     pan?: number;
     easing?: EasingLike;
     outputAspect?: number | null;
+    imageAspect?: ImageAspect | null;
   } = {},
 ): BurnsPath {
   if (!VALID_STYLES.includes(style)) {
@@ -250,20 +313,19 @@ export function kenBurnsPath(
       `kenBurnsPath: style must be one of ${JSON.stringify(VALID_STYLES)}, got ${JSON.stringify(style)}`,
     );
   }
-  const [start, end] = endpointsForStyle(style, index, { zoom, pan, outputAspect });
+  const [start, end] = endpointsForStyle(style, index, {
+    zoom,
+    pan,
+    aspect: windowAspect(outputAspect, imageAspect),
+  });
   return BurnsPath.fromStartEnd(start, end, { easing, outputAspect });
 }
 
 function endpointsForStyle(
   style: Style,
   index: number,
-  {
-    zoom,
-    pan,
-    outputAspect,
-  }: { zoom: number; pan: number; outputAspect: number | null },
+  { zoom, pan, aspect }: { zoom: number; pan: number; aspect: number },
 ): [Rect, Rect] {
-  const aspect = outputAspect ?? 1;
   if (style === 'push') {
     // Focal direction cycles through compass octants per index.
     const angle = (index * 2 + 1) * (Math.PI / 4);
@@ -278,7 +340,8 @@ function endpointsForStyle(
   const half = Math.min(pan, 0.45);
   const startCx = roundTo(0.5 - direction * half, 4);
   const endCx = roundTo(0.5 + direction * half, 4);
-  const driftZoom = roundTo(1 / (1 - 2 * half) + 0.05, 4);
+  // A window narrower than the frame already spans only `aspect` of the width.
+  const driftZoom = roundTo(Math.max(1, Math.min(1, aspect) / (1 - 2 * half)) + 0.05, 4);
   return [
     Rect.fromCenterZoom(startCx, 0.5, driftZoom, { aspect }),
     Rect.fromCenterZoom(endCx, 0.5, driftZoom, { aspect }),

@@ -21,8 +21,10 @@ export {
   BurnsPath,
   kenBurnsPath,
   SPEC_VERSION,
+  windowAspect,
   type BurnsPathDict,
   type BurnsPathOptions,
+  type ImageAspect,
   type Keyframe,
   type Style,
 } from './path.js';
