@@ -120,7 +120,9 @@ stretches):
 
 ```python
 ken_burns_video(
-    "portrait.jpg", BurnsPath.push_in(1.4, output_aspect=16 / 9), duration=6.0
+    "portrait.jpg",
+    BurnsPath.push_in(1.4, output_aspect=16 / 9, image_aspect=3 / 4),
+    duration=6.0,
 )
 ```
 
@@ -322,7 +324,7 @@ motion.
 |--------|--------------|
 | `Rect(x, y, w, h)` | A normalized viewport over the image. `.from_center_zoom`, `.clamped`, `.to_pixels`, `.zoom`, `.center`. |
 | `BurnsPath` | The motion spec. `.evaluate(t) -> Rect`, `.from_start_end`, `.push_in`, `.reversed`, `.to_dict` / `.from_dict`. |
-| `ken_burns_path(index, *, style="push", zoom=1.10, pan=0.03, easing="ease-in-out", output_aspect=None)` | Deterministic per-index `BurnsPath` for a sequence. |
+| `ken_burns_path(index, *, style="push", zoom=1.10, pan=0.03, easing="ease-in-out", output_aspect=None, image_aspect=None)` | Deterministic per-index `BurnsPath` for a sequence. |
 | `salient_box(image, *, downscale=320, threshold_pct=72.0, trim_pct=4.0, pad=0.05, min_size=0.35)` | Estimate the busy/detailed region of an image as a normalized `(x, y, w, h)` box. |
 | `content_aware_path(img_w, img_h, *, subject=None, faces=(), index=0, output_aspect=None, zoom=1.3, min_zoom=1.05, keep_pad=0.18, mode="auto", easing="ease-in-out")` | Pure geometry: a `BurnsPath` that keeps a keep-region framed. |
 | `content_aware_path_for(image, *, subject=None, faces=(), faces_detector=None, index=0, output_aspect=None, **kwargs)` | The same, deriving subject (`salient_box`) and faces from the image itself. An explicit `subject` replaces the saliency estimate, which is then not computed. |

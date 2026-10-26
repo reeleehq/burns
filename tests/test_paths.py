@@ -185,3 +185,80 @@ class TestKenBurnsPath:
     def test_output_aspect_carried(self):
         p = ken_burns_path(1, output_aspect=16 / 9)
         assert p.output_aspect == pytest.approx(16 / 9)
+
+
+class TestImageAspect:
+    """burns#30: constructors built rects as if the source were square."""
+
+    @pytest.mark.parametrize("size", [(1600, 900), (1200, 1600), (1600, 1200)])
+    def test_push_in_starts_on_the_frame_the_render_fills(self, size):
+        from burns._frame import sample_box
+
+        img_w, img_h = size
+        out_w, out_h = 1024, 576
+        path = BurnsPath.push_in(
+            1.2, output_aspect=out_w / out_h, image_aspect=img_w / img_h
+        )
+        x0, y0, x1, y1 = sample_box(path, 0.0, img_w, img_h, out_w, out_h)
+        # zoom 1.0 is the largest output-shaped window the image holds
+        full_w = min(img_w, img_h * out_w / out_h)
+        assert (x1 - x0) == pytest.approx(full_w, abs=1)
+        assert (y1 - y0) == pytest.approx(full_w * out_h / out_w, abs=1)
+
+    def test_the_headline_case_is_the_full_frame(self):
+        start = BurnsPath.push_in(
+            1.2, to=(0.45, 0.5), output_aspect=1024 / 576, image_aspect=16 / 9
+        ).evaluate(0.0)
+        assert start == Rect(0.0, 0.0, 1.0, 1.0)
+
+    def test_ken_burns_path_honours_it_too(self):
+        p = ken_burns_path(1, output_aspect=16 / 9, image_aspect=16 / 9)
+        assert p.evaluate(0.0) == Rect(0.0, 0.0, 1.0, 1.0)
+
+    @pytest.mark.parametrize("style", ["push", "drift"])
+    @pytest.mark.parametrize("index", [1, 2])
+    @pytest.mark.parametrize(
+        "size,out",
+        [
+            ((1600, 900), (1024, 576)),
+            ((1600, 900), (576, 1024)),
+            ((1600, 900), (500, 500)),
+            ((3500, 500), (1024, 576)),
+            ((1200, 1600), (1024, 576)),
+        ],
+    )
+    def test_no_extra_crop_at_any_t(self, style, index, size, out):
+        """The path's own window already has the output's shape, so cover-crop trims nothing."""
+        from burns._frame import sample_box
+
+        (img_w, img_h), (out_w, out_h) = size, out
+        path = ken_burns_path(
+            index,
+            style=style,
+            output_aspect=out_w / out_h,
+            image_aspect=img_w / img_h,
+        )
+        for t in (0.0, 0.5, 1.0):
+            rect = path.evaluate(t)
+            x0, y0, x1, y1 = rect.to_pixels(img_w, img_h)
+            assert sample_box(path, t, img_w, img_h, out_w, out_h) == pytest.approx(
+                (x0, y0, x1, y1), abs=2
+            )
+
+    def test_drift_does_not_over_zoom_a_height_limited_window(self):
+        p = ken_burns_path(
+            1, style="drift", pan=0.3, output_aspect=9 / 16, image_aspect=16 / 9
+        )
+        assert p.evaluate(0.0).h > 0.9, "a 9:16 window of a 16:9 still fills its height"
+
+    @pytest.mark.parametrize("bad", [0, -1.0, float("inf"), float("nan")])
+    def test_non_positive_or_non_finite_aspects_are_refused(self, bad):
+        with pytest.raises(ValueError, match="aspect"):
+            BurnsPath.push_in(output_aspect=bad, image_aspect=1.0)
+        with pytest.raises(ValueError, match="aspect"):
+            BurnsPath.push_in(output_aspect=16 / 9, image_aspect=bad)
+
+    def test_omitting_it_warns_and_keeps_the_square_assumption(self):
+        with pytest.warns(FutureWarning, match="image_aspect"):
+            legacy = BurnsPath.push_in(1.2, output_aspect=16 / 9).evaluate(0.0)
+        assert legacy.h == pytest.approx(0.5625)
