@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { BurnsPath, type BurnsPathDict } from '../src/path.js';
+import { BurnsPath, kenBurnsPath, type BurnsPathDict } from '../src/path.js';
 import { sampleBox } from '../src/frame.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -36,12 +36,19 @@ interface PixelBoxVector {
   output_size: [number, number];
   samples: { t: number; box: [number, number, number, number] }[];
 }
+interface ConstructorVector {
+  name: string;
+  fn: 'push_in' | 'ken_burns_path';
+  args: Record<string, unknown>;
+  path: BurnsPathDict;
+}
 interface Fixture {
   spec_version: number;
   eps: number;
   t_samples: number[];
   evaluate: EvalVector[];
   pixel_box: PixelBoxVector[];
+  constructors: ConstructorVector[];
 }
 
 const fixture: Fixture = JSON.parse(readFileSync(FIXTURE_PATH, 'utf8'));
@@ -115,6 +122,43 @@ describe('path round-trips through the wire format', () => {
       // Re-serializing must reproduce the stored dict exactly (the wire format
       // is itself part of the contract).
       expect(path.toDict()).toEqual(vec.path);
+    });
+  }
+});
+
+describe('constructor vectors reproduce (burns#34)', () => {
+  const num = (a: unknown) => a as number | null | undefined;
+  for (const vec of fixture.constructors) {
+    it(vec.name, () => {
+      const a = vec.args;
+      const common = {
+        outputAspect: num(a.output_aspect) ?? null,
+        imageAspect: num(a.image_aspect) ?? null,
+      };
+      const path =
+        vec.fn === 'push_in'
+          ? BurnsPath.pushIn({
+              zoom: a.zoom as number | undefined,
+              to: a.to as [number, number] | undefined,
+              ...common,
+            })
+          : kenBurnsPath(a.index as number, {
+              style: a.style as 'push' | 'drift' | undefined,
+              zoom: a.zoom as number | undefined,
+              pan: a.pan as number | undefined,
+              ...common,
+            });
+      const got = path.toDict();
+      expect(got.output_aspect).toBe(vec.path.output_aspect);
+      expect(got.easing).toEqual(vec.path.easing);
+      expect(got.interp).toBe(vec.path.interp);
+      expect(got.keyframes.length).toBe(vec.path.keyframes.length);
+      got.keyframes.forEach((kf, i) => {
+        const want = vec.path.keyframes[i]!;
+        for (const k of ['x', 'y', 'w', 'h'] as const) {
+          expect(kf.rect[k], `${vec.name} kf${i}.${k}`).toBeCloseTo(want.rect[k], -Math.log10(fixture.eps));
+        }
+      });
     });
   }
 });

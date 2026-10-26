@@ -120,3 +120,19 @@ def test_path_roundtrips_through_dict(fixture):
     for vec in fixture["evaluate"]:
         path = BurnsPath.from_dict(vec["path"])
         assert BurnsPath.from_dict(path.to_dict()) == path
+
+
+def test_constructor_vectors_reproduce(fixture):
+    """The constructors (not only the paths) are part of the contract (burns#34)."""
+    from burns import ken_burns_path
+
+    assert fixture["constructors"], "no constructor vectors in fixture"
+    for vec in fixture["constructors"]:
+        args = {
+            k: tuple(v) if isinstance(v, list) else v for k, v in vec["args"].items()
+        }
+        if vec["fn"] == "push_in":
+            path = BurnsPath.push_in(**args)
+        else:
+            path = ken_burns_path(args.pop("index"), **args)
+        assert path.to_dict() == vec["path"], vec["name"]
