@@ -56,6 +56,7 @@ insufficient at 4K.
 
 from __future__ import annotations
 
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -99,8 +100,56 @@ DFLT_WRITE_KWARGS = {"bitrate": "5000k", "preset": "medium"}
 WRITE_KWARGS_IGNORED = ("logger",)
 
 
+#: What ffmpeg's progress line says about a stream it has finished copying.
+_FRAME_COUNT_RE = re.compile(r"frame=\s*(\d+)")
+#: The stream's frame rate, as ffmpeg's input banner prints it.
+_STREAM_FPS_RE = re.compile(r"Video:.*?,\s*([\d.]+) fps")
+
+#: Allowed relative drift between the requested and the stream's rate. The mp4
+#: header's rate is an average over the container timebase (30 reads as 30.34),
+#: so this is loose; a real retime (30 -> 25) is 17%.
+FPS_TOLERANCE = 0.05
+
+
 class FfmpegBackendError(RuntimeError):
     """This path or these options cannot be rendered by the ffmpeg backend."""
+
+
+def expected_frame_count(duration: float, fps: int) -> int:
+    """The frames a ``duration``-second clip at ``fps`` must have (rounded, as the fleet's assemblers do)."""
+    return round(duration * fps)
+
+
+def probe_video(binary: str, video: Path) -> tuple[int, float]:
+    """``(frame count, frame rate)`` of ``video``, measured by ffmpeg itself.
+
+    Copies the stream to the null muxer and reads the final ``frame=`` of the
+    progress line, so it needs no `ffprobe` — the bundled binary has none.
+    """
+    proc = subprocess.run(
+        [
+            binary,
+            "-hide_banner",
+            "-i",
+            str(video),
+            "-map",
+            "0:v:0",
+            "-c",
+            "copy",
+            "-f",
+            "null",
+            "-",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    counts = _FRAME_COUNT_RE.findall(proc.stderr)
+    if proc.returncode != 0 or not counts:
+        raise FfmpegBackendError(
+            f"could not count the frames of {video.name}:\n{proc.stderr.strip()[-600:]}"
+        )
+    fps = _STREAM_FPS_RE.search(proc.stderr)
+    return int(counts[-1]), float(fps.group(1)) if fps else float("nan")
 
 
 def default_ffmpeg_exe() -> str:
@@ -328,6 +377,11 @@ def ffmpeg_backend(
 
     binary = default_ffmpeg_exe() if ffmpeg_exe is None else ffmpeg_exe
     output = Path(output)
+    expected = expected_frame_count(duration, fps)
+    if expected < 1:
+        raise FfmpegBackendError(
+            f"duration={duration} s at {fps} fps is less than one frame"
+        )
     with tempfile.TemporaryDirectory(prefix="burns-ffmpeg-") as tmp:
         # The backend is handed a decoded array, never the source path, so the
         # image has to be re-materialised before ffmpeg can open it. PNG because
@@ -347,10 +401,12 @@ def ffmpeg_backend(
             str(fps),
             "-i",
             str(still),
-            "-t",
-            f"{duration:.6f}",
             "-vf",
             fragment,
+            # Cap the frame count; the input is looped, so this ends the clip.
+            # burns#31 saw 225 frames for 270, once, unreproduced: verified below.
+            "-frames:v",
+            str(expected),
             *_encode_args(codec, write_kwargs),
             str(output),
         ]
@@ -366,5 +422,13 @@ def ffmpeg_backend(
             f"ffmpeg failed (exit {proc.returncode}) rendering {output.name}:\n"
             f"{proc.stderr.strip()[-1200:]}\n"
             f"filter: {fragment}"
+        )
+    got, got_fps = probe_video(binary, output)
+    if got != expected or abs(got_fps - fps) > FPS_TOLERANCE * fps:
+        raise FfmpegBackendError(
+            f"ffmpeg rendered {got} frames at {got_fps} fps for {output.name}, "
+            f"expected {expected} at {fps} ({duration} s). A clip of the wrong "
+            "length or rate shifts everything after it in an edit. "
+            'Render it with backend="pillow".'
         )
     return output

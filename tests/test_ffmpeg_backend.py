@@ -30,6 +30,7 @@ from burns._ffmpeg import (
     SAMPLE_LADDER,
     FfmpegBackendError,
     default_ffmpeg_exe,
+    expected_frame_count,
     keyframes_for,
     sample_count,
 )
@@ -205,6 +206,52 @@ class TestTheOutputIsWhatWasAskedFor:
         width, height, frames = probe(video)
         assert (width, height) == (1280, 720)
         assert frames == 50, "d=1 is what keeps zoompan 1:1 with the input"
+
+    @pytest.mark.parametrize("size", [(640, 480), (480, 640), (1000, 1000)])
+    def test_a_constant_zoom_pan_has_the_pillow_frame_count(self, tmp_path, size):
+        """Guard (not a repro) for burns#31: a pure pan once came out 225 frames for 270."""
+        keys = (
+            (0, Rect(0.078, 0.3103, 0.6897, 0.6897)),
+            (1, Rect(0.2323, 0.3103, 0.6897, 0.6897)),
+        )
+        video = render(
+            smooth_image(*size),
+            BurnsPath(keyframes=keys),
+            tmp_path / "pan.mp4",
+            duration=3.0,
+            fps=30,
+            out_w=640,
+            out_h=360,
+        )
+        assert probe(video)[2] == expected_frame_count(3.0, 30) == 90
+
+    def test_a_wrong_frame_count_is_refused_naming_pillow(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("burns._ffmpeg.probe_video", lambda *a: (75, 30.0))
+        with pytest.raises(FfmpegBackendError, match='backend="pillow"'):
+            render(smooth_image(), BurnsPath.push_in(1.2), tmp_path / "x.mp4")
+
+    def test_a_retimed_stream_is_refused(self, tmp_path, monkeypatch):
+        """The 225-for-270 shape: right-ish length, wrong clock (burns#31)."""
+        import looks.motion
+
+        real = looks.motion.compile_motion
+        monkeypatch.setattr(
+            looks.motion,
+            "compile_motion",
+            lambda *a, **k: real(*a, **k) + ",setpts=PTS*30/25",
+        )
+        with pytest.raises(FfmpegBackendError, match='backend="pillow"'):
+            render(smooth_image(), BurnsPath.push_in(1.2), tmp_path / "r.mp4", fps=30)
+
+    def test_less_than_one_frame_is_refused(self, tmp_path):
+        with pytest.raises(FfmpegBackendError, match="less than one frame"):
+            render(
+                smooth_image(),
+                BurnsPath.push_in(1.2),
+                tmp_path / "z.mp4",
+                duration=0.01,
+                fps=30,
+            )
 
     def test_a_static_path_still_renders(self, tmp_path):
         """No zoom, no pan — it takes the `crop` branch, and `crop` emits the
