@@ -1,37 +1,37 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-14T05:36:51Z",
+  "built_at": "2026-10-26T11:57:10Z",
   "package": {
     "name": "burns",
-    "version": "0.0.19",
+    "version": "0.0.20",
     "display_name": "burns",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a",
-    "short_commit": "29ff63e",
+    "commit": "aacbb6b0ccf1979dd8234922a7ee28217d37f3b7",
+    "short_commit": "aacbb6b",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/reeleehq/burns",
-    "commit_url": "https://github.com/reeleehq/burns/commit/29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a",
+    "commit_url": "https://github.com/reeleehq/burns/commit/aacbb6b0ccf1979dd8234922a7ee28217d37f3b7",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "reeleehq/burns",
-    "sha": "29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a",
+    "sha": "aacbb6b0ccf1979dd8234922a7ee28217d37f3b7",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "38517332588",
-    "run_url": "https://github.com/reeleehq/burns/actions/runs/38517332588",
+    "run_id": "40318512089",
+    "run_url": "https://github.com/reeleehq/burns/actions/runs/40318512089",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.17",
-    "sphinx": "9.1.0",
+    "epythet": "0.2.22",
+    "sphinx": "9.1.1",
     "docutils": "0.22.4",
     "python": "3.12.15"
   },
@@ -60,16 +60,16 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.20",
+    "latest": "0.0.21",
     "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/reeleehq/burns && cd burns\ngit checkout 29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a\npip install \"epythet==0.2.17\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/reeleehq/burns && cd burns\ngit checkout aacbb6b0ccf1979dd8234922a7ee28217d37f3b7\npip install \"epythet==0.2.22\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": false,
     "notes": [
-      "The documented version (0.0.19) is behind the latest release on PyPI (0.0.20): `pip install burns` gives newer code than these docs describe."
+      "The documented version (0.0.20) is behind the latest release on PyPI (0.0.21): `pip install burns` gives newer code than these docs describe."
     ]
   }
 }

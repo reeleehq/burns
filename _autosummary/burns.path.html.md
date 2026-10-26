@@ -54,7 +54,7 @@ deterministic per-index motion across a sequence.
     strictly increasing in `t`. Must have at least one entry; the
     first `t` should be `0.0` and the last `1.0` for the whole
     clock to be covered (out-of-range `t` clamps to the ends).
-  * **easing** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – a CSS timing-function spec (name / `cubic-bezier(...)` /
+  * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – a CSS timing-function spec (name / `cubic-bezier(...)` /
     4-tuple) or a callable `[0,1] -> [0,1]`. Default `"ease-in-out"`.
   * **interp** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – geometry interpolation between keyframes. Only `"linear"` is
     implemented; the field exists so the spec can carry richer schemes
@@ -89,9 +89,6 @@ Applies easing to the clock, then linearly interpolates the geometry at
 the eased progress. Pure and deterministic: no image, no I/O, no frame
 count. `t` outside `[0, 1]` clamps to the nearest end.
 
-* **Return type:**
-  [`Rect`](burns.rect.html.md#burns.rect.Rect)
-
 ### Examples
 
 ```pycon
@@ -102,12 +99,12 @@ count. `t` outside `[0, 1]` clamps to the nearest end.
 Rect(x=0.0, y=0.0, w=0.75, h=0.75)
 ```
 
+* **Return type:**
+  [`Rect`](burns.rect.html.md#burns.rect.Rect)
+
 #### *classmethod* from_dict(d)
 
 Rebuild a [`BurnsPath`](#burns.path.BurnsPath) from [`to_dict()`](#burns.path.BurnsPath.to_dict) output.
-
-* **Return type:**
-  [`BurnsPath`](#burns.path.BurnsPath)
 
 ### Examples
 
@@ -117,12 +114,12 @@ Rebuild a [`BurnsPath`](#burns.path.BurnsPath) from [`to_dict()`](#burns.path.Bu
 True
 ```
 
+* **Return type:**
+  [`BurnsPath`](#burns.path.BurnsPath)
+
 #### *classmethod* from_start_end(start, end, , easing='ease-in-out', output_aspect=None)
 
 The canonical two-rectangle Ken Burns case (Start frame -> End frame).
-
-* **Return type:**
-  [`BurnsPath`](#burns.path.BurnsPath)
 
 ### Examples
 
@@ -132,13 +129,13 @@ The canonical two-rectangle Ken Burns case (Start frame -> End frame).
 BurnsPath(keyframes=((0.0, Rect(...)), (1.0, Rect(...))), ...)
 ```
 
+* **Return type:**
+  [`BurnsPath`](#burns.path.BurnsPath)
+
 #### *classmethod* push_in(zoom=1.3, , to=(0.5, 0.5), easing='ease-in-out', output_aspect=None)
 
 The 90%-case constructor: a slow push from the full image toward
 `to` at `zoom`.
-
-* **Return type:**
-  [`BurnsPath`](#burns.path.BurnsPath)
 
 ### Examples
 
@@ -147,15 +144,15 @@ The 90%-case constructor: a slow push from the full image toward
 1.3
 ```
 
+* **Return type:**
+  [`BurnsPath`](#burns.path.BurnsPath)
+
 #### reversed()
 
 Swap start and end (the NLE “Swap Start and End Areas” button).
 
 Mirrors every keyframe’s time about `0.5` and re-sorts, so the motion
 plays back-to-front. Easing/interp/output_aspect are preserved.
-
-* **Return type:**
-  [`BurnsPath`](#burns.path.BurnsPath)
 
 ### Examples
 
@@ -165,15 +162,15 @@ plays back-to-front. Easing/interp/output_aspect are preserved.
 Rect(x=0.0, y=0.0, w=0.5, h=0.5)
 ```
 
+* **Return type:**
+  [`BurnsPath`](#burns.path.BurnsPath)
+
 #### to_dict()
 
 Serialize to the versioned JSON wire format (the cross-language SSOT).
 
 Easing is stored as the original CSS string / 4-tuple. A callable easing
 cannot be serialized and raises — use a CSS spec for paths that travel.
-
-* **Return type:**
-  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
 ### Examples
 
@@ -183,6 +180,9 @@ cannot be serialized and raises — use a CSS spec for paths that travel.
 >>> d["version"], d["easing"], len(d["keyframes"])
 (1, 'ease-in-out', 2)
 ```
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
 ### burns.path.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None)
 
@@ -210,7 +210,7 @@ Two styles:
   * **zoom** ([`float`](https://docs.python.org/3/builtins/functions.html#float)) – the zoomed-end magnification (> 1.0) for `"push"`.
   * **pan** ([`float`](https://docs.python.org/3/builtins/functions.html#float)) – focal-point offset (`"push"`) or total horizontal travel
     (`"drift"`), in `[0, 1]` image units.
-  * **easing** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. Default `"ease-in-out"` — the
+  * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. Default `"ease-in-out"` — the
     cinematic slow-in/slow-out. Pass `"linear"` for constant velocity.
   * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – aspect ratio the render should fill (`None` = match image).
 * **Return type:**

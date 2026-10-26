@@ -209,9 +209,6 @@ A pure function of `seed` alone — not of the image, and not of any
 position in a sequence. That is what makes a panel’s move survive both a
 reorder and a swapped still.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ### Examples
 
 ```pycon
@@ -223,15 +220,15 @@ True
 True
 ```
 
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
 ### burns.moves.move_kind(move)
 
 How `move` is grouped: `"zoom"`, `"drift"`, `"static"`, `"select"`.
 
 For a UI that wants a compass of directions separately from the rest, read
 off the same table [`resolve_move()`](#burns.moves.resolve_move) dispatches on.
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### Examples
 
@@ -242,12 +239,15 @@ off the same table [`resolve_move()`](#burns.moves.resolve_move) dispatches on.
 ['drift_down', 'drift_left', 'drift_right', 'drift_up']
 ```
 
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
 ### burns.moves.resolve_move(move, , image, aspect, zoom=1.18, focus=None, seed=0, easing='ease-in-out', on_aspect_mismatch='raise', content_box=None)
 
 Resolve an authored camera intent against `image` into a path.
 
 * **Parameters:**
-  * **move** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath), [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]]) – a name from [`MOVES`](#burns.moves.MOVES), or an explicit
+  * **move** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath), [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]]) – a name from [`MOVES`](#burns.moves.MOVES), or an explicit
     [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath) / its `to_dict()` payload. The two
     are the two front doors on this one path: a stored panel that
     carries both a named move and a hand-corrected override passes the
@@ -284,7 +284,7 @@ Resolve an authored camera intent against `image` into a path.
   * **seed** ([`int`](https://docs.python.org/3/builtins/functions.html#int)) – chooses which move `"auto"` becomes, and nothing else. Mint it
     once per panel and store it; never derive it from a position, which
     is the defect this parameter exists to remove.
-  * **easing** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. A callable is fine here but
+  * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. A callable is fine here but
     cannot be serialized — see `BurnsPath.to_dict()`. Applies to a
     named move; an explicit path carries its own.
   * **content_box** ([`Any`](https://docs.python.org/3/library/typing.html#typing.Any)) – the part of `image` that is picture, as a normalized

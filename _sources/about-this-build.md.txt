@@ -5,19 +5,19 @@ orphan: true
 
 # About this build
 
-This documentation was built on **2026-10-14 05:36 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a"><code>29ff63e</code></a> on branch <code>main</code>, for **burns 0.0.19** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-26 11:57 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/aacbb6b0ccf1979dd8234922a7ee28217d37f3b7"><code>aacbb6b</code></a> on branch <code>main</code>, for **burns 0.0.20** (from <code>pyproject.toml</code>).
 
 :::{warning}
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.19) is behind the latest release on PyPI (0.0.20): `pip install burns` gives newer code than these docs describe.
+- The documented version (0.0.20) is behind the latest release on PyPI (0.0.21): `pip install burns` gives newer code than these docs describe.
 :::
 
 ## Source
 
 | | |
 |---|---|
-| Commit | <a href="https://github.com/reeleehq/burns/commit/29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a"><code>29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a</code></a> |
+| Commit | <a href="https://github.com/reeleehq/burns/commit/aacbb6b0ccf1979dd8234922a7ee28217d37f3b7"><code>aacbb6b0ccf1979dd8234922a7ee28217d37f3b7</code></a> |
 | Branch | <code>main</code> |
 | Tags at this commit | none |
 | Working tree | clean |
@@ -28,16 +28,16 @@ The documentation and the package may be misaligned:
 | | |
 |---|---|
 | Repository | <code>reeleehq/burns</code> |
-| Run | <a href="https://github.com/reeleehq/burns/actions/runs/38517332588">38517332588</a> |
+| Run | <a href="https://github.com/reeleehq/burns/actions/runs/40318512089">40318512089</a> |
 | Ref | <code>refs/heads/main</code> |
-| Event commit | <code>29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a</code> (in the history of the built commit) |
+| Event commit | <code>aacbb6b0ccf1979dd8234922a7ee28217d37f3b7</code> (in the history of the built commit) |
 
 ## Tools
 
 | | |
 |---|---|
-| epythet | 0.2.17 |
-| Sphinx | 9.1.0 |
+| epythet | 0.2.22 |
+| Sphinx | 9.1.1 |
 | docutils | 0.22.4 |
 | Python | 3.12.15 |
 
@@ -55,14 +55,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/burns/0.0.20/">0.0.20</a>, newer than the documented version (0.0.19).
+Latest release: <a href="https://pypi.org/project/burns/0.0.21/">0.0.21</a>, newer than the documented version (0.0.20).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/reeleehq/burns && cd burns
-git checkout 29ff63e146280d1e5e7ba3c01ba4ccc0c4b83b1a
-pip install "epythet==0.2.17"
+git checkout aacbb6b0ccf1979dd8234922a7ee28217d37f3b7
+pip install "epythet==0.2.22"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

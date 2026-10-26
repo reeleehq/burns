@@ -84,9 +84,6 @@ always `1.0` (the axis that limits) and the other is what the output
 aspect leaves of the opposite one. `output_aspect=None` means “match the
 image”, so both are `1.0`.
 
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
-
 ### Examples
 
 ```pycon
@@ -97,6 +94,9 @@ image”, so both are `1.0`.
 >>> [round(v, 4) for v in axis_maxima(1080, 1920, 16 / 9)]  # portrait
 [1.0, 0.3164]
 ```
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
 
 ### burns.content.content_aware_path(img_w, img_h, , subject=None, faces=(), index=0, output_aspect=None, zoom=1.3, min_zoom=1.05, keep_pad=0.18, mode='auto', easing='ease-in-out')
 
@@ -158,9 +158,6 @@ down. When given, [`salient_box()`](#burns.content.salient_box) is **not called*
 total, and computing an estimate only to discard it is how a partial
 override quietly lets saliency back in.
 
-* **Return type:**
-  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
-
 ### Examples
 
 ```pycon
@@ -172,15 +169,15 @@ override quietly lets saliency back in.
 True
 ```
 
+* **Return type:**
+  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
+
 ### burns.content.fit_zoom(img_w, img_h, , keep, output_aspect=None)
 
 The largest zoom at which `keep` still fits inside the window.
 
 `keep` is taken as given — pad it with [`pad_box()`](#burns.content.pad_box) first if you want
 the subject framed rather than touching the edges.
-
-* **Return type:**
-  [`float`](https://docs.python.org/3/builtins/functions.html#float)
 
 ### Examples
 
@@ -191,6 +188,9 @@ the subject framed rather than touching the edges.
 1.0
 ```
 
+* **Return type:**
+  [`float`](https://docs.python.org/3/builtins/functions.html#float)
+
 ### burns.content.keep_window(img_w, img_h, , center, zoom, output_aspect=None)
 
 The window of `zoom`, at `output_aspect`, centred on `center`.
@@ -198,9 +198,6 @@ The window of `zoom`, at `output_aspect`, centred on `center`.
 Clamped inside the image by sliding, never by resizing (see
 [`clamped()`](burns.rect.html.md#burns.rect.Rect.clamped)) — shrinking would change the window’s
 aspect and make the rendered frame breathe.
-
-* **Return type:**
-  [`Rect`](burns.rect.html.md#burns.rect.Rect)
 
 ### Examples
 
@@ -211,12 +208,12 @@ Rect(x=0.25, y=0.25, w=0.5, h=0.5)
 Rect(x=0.5, y=0.25, w=0.5, h=0.5)
 ```
 
+* **Return type:**
+  [`Rect`](burns.rect.html.md#burns.rect.Rect)
+
 ### burns.content.pad_box(box, pad=0.18)
 
 Grow `box` by `pad` of its own size on every side, clipped to the image.
-
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
 
 ### Examples
 
@@ -227,6 +224,9 @@ Grow `box` by `pad` of its own size on every side, clipped to the image.
 (0.0, 0.0, 1.0, 1.0)
 ```
 
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
+
 ### burns.content.salient_box(image, , downscale=320, threshold_pct=72.0, trim_pct=4.0, pad=0.05, min_size=0.35)
 
 Estimate the salient (high-detail) region of `image` as a normalized box.
@@ -235,9 +235,6 @@ Uses gradient magnitude: flat regions (sky, walls, water) have low gradient
 and fall away, so the bounding box of the high-gradient pixels tracks the
 subject. Robust to outliers via percentile trimming. Falls back to a
 centered box when the image is too uniform to decide.
-
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
 
 ### Examples
 
@@ -248,3 +245,6 @@ centered box when the image is too uniform to decide.
 >>> 0.3 < x < 0.45 and 0.55 < y < 0.65   # box around the bright square
 True
 ```
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]

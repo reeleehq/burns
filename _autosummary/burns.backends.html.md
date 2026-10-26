@@ -55,15 +55,15 @@ Returns the written path.
 
 Look up a registered backend by name.
 
-* **Return type:**
-  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[`...`](https://docs.python.org/3/builtins/constants.html#Ellipsis), [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]
-
 ### Examples
 
 ```pycon
 >>> get_backend() is get_backend("pillow")
 True
 ```
+
+* **Return type:**
+  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[`...`](https://docs.python.org/3/builtins/constants.html#Ellipsis), [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]
 
 ### burns.backends.pillow_backend(img_np, img_w, img_h, path, , duration, fps, output, out_w, out_h, codec, audio_codec, \*\*write_kwargs)
 

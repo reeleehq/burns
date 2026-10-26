@@ -34,9 +34,6 @@ The curve runs from `(0, 0)` to `(1, 1)` with control points
 parameter (bisection — robust for any monotone-x curve) then returns
 `y(t)`.
 
-* **Return type:**
-  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)]
-
 ### Examples
 
 ```pycon
@@ -46,6 +43,9 @@ parameter (bisection — robust for any monotone-x curve) then returns
 >>> round(cubic_bezier(0.42, 0.0, 0.58, 1.0)(0.5), 6)  # ease-in-out
 0.5
 ```
+
+* **Return type:**
+  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)]
 
 ### burns.easing.parse_easing(spec='ease-in-out')
 

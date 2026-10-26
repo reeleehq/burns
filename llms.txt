@@ -16,7 +16,7 @@
 - [burns.rect](_autosummary/burns.rect.html.md): The Ken Burns viewport rectangle — the render-agnostic geometric atom.
 - [burns.render](_autosummary/burns.render.html.md): Ken Burns &#42;&#42;renderers&#42;&#42; — turn still images into pan/zoom video.
 - [For AI agents](ai-agents.html.md): &#96;burns&#96; ships artifacts for coding agents alongside its code. This page lists
-- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-14 05:36 UTC&#42;&#42; from commit &lt;a href="https://github.com/ree...
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-26 11:57 UTC&#42;&#42; from commit &lt;a href="https://github.com/ree...
 
 ## Optional
 

@@ -66,9 +66,6 @@ rather than shrinking — shrinking the box would change its aspect ratio
 and make the rendered frame breathe/stretch. Windows larger than the
 image in a dimension are centered in that dimension.
 
-* **Return type:**
-  [`Rect`](#burns.rect.Rect)
-
 ### Examples
 
 ```pycon
@@ -77,6 +74,9 @@ Rect(x=0.5, y=0.0, w=0.5, h=0.5)
 >>> Rect(-0.2, 0.3, 0.4, 0.4).clamped()
 Rect(x=0.0, y=0.3, w=0.4, h=0.4)
 ```
+
+* **Return type:**
+  [`Rect`](#burns.rect.Rect)
 
 #### *classmethod* from_center_zoom(cx, cy, zoom=1.0, , aspect=1.0)
 
@@ -90,9 +90,6 @@ isotropic window (`w == h`) whose rendered AR equals the source
 image’s — reproducing the legacy behavior exactly. The result is
 clamped to stay inside the image.
 
-* **Return type:**
-  [`Rect`](#burns.rect.Rect)
-
 ### Examples
 
 ```pycon
@@ -102,12 +99,12 @@ Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 Rect(x=0.5, y=0.25, w=0.5, h=0.5)
 ```
 
+* **Return type:**
+  [`Rect`](#burns.rect.Rect)
+
 #### is_contained()
 
 True when the window lies wholly inside the image.
-
-* **Return type:**
-  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
 
 ### Examples
 
@@ -118,12 +115,12 @@ True
 False
 ```
 
+* **Return type:**
+  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
+
 #### lerp(other, t)
 
 Linearly interpolate toward `other` by `t` in `[0, 1]`.
-
-* **Return type:**
-  [`Rect`](#burns.rect.Rect)
 
 ### Examples
 
@@ -131,6 +128,9 @@ Linearly interpolate toward `other` by `t` in `[0, 1]`.
 >>> Rect(0, 0, 1, 1).lerp(Rect(0.25, 0.25, 0.5, 0.5), 0.5)
 Rect(x=0.125, y=0.125, w=0.75, h=0.75)
 ```
+
+* **Return type:**
+  [`Rect`](#burns.rect.Rect)
 
 #### to_pixels(img_w, img_h)
 
@@ -140,9 +140,6 @@ Clamps first so the box is always inside the raster, then rounds (not
 truncates) for symmetric integer conversion. The returned box is a
 half-open crop region suitable for `ndarray[y0:y1, x0:x1]`.
 
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int)]
-
 ### Examples
 
 ```pycon
@@ -151,6 +148,9 @@ half-open crop region suitable for `ndarray[y0:y1, x0:x1]`.
 >>> Rect.from_center_zoom(0.5, 0.5, 2.0).to_pixels(100, 80)
 (25, 20, 75, 60)
 ```
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int)]
 
 #### *property* zoom *: [float](https://docs.python.org/3/builtins/functions.html#float)*
 

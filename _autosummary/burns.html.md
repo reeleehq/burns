@@ -82,7 +82,7 @@ deterministic per-index motion across a sequence.
     strictly increasing in `t`. Must have at least one entry; the
     first `t` should be `0.0` and the last `1.0` for the whole
     clock to be covered (out-of-range `t` clamps to the ends).
-  * **easing** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – a CSS timing-function spec (name / `cubic-bezier(...)` /
+  * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – a CSS timing-function spec (name / `cubic-bezier(...)` /
     4-tuple) or a callable `[0,1] -> [0,1]`. Default `"ease-in-out"`.
   * **interp** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – geometry interpolation between keyframes. Only `"linear"` is
     implemented; the field exists so the spec can carry richer schemes
@@ -117,9 +117,6 @@ Applies easing to the clock, then linearly interpolates the geometry at
 the eased progress. Pure and deterministic: no image, no I/O, no frame
 count. `t` outside `[0, 1]` clamps to the nearest end.
 
-* **Return type:**
-  [`Rect`](burns.rect.html.md#burns.rect.Rect)
-
 ### Examples
 
 ```pycon
@@ -130,12 +127,12 @@ count. `t` outside `[0, 1]` clamps to the nearest end.
 Rect(x=0.0, y=0.0, w=0.75, h=0.75)
 ```
 
+* **Return type:**
+  [`Rect`](burns.rect.html.md#burns.rect.Rect)
+
 #### *classmethod* from_dict(d)
 
 Rebuild a [`BurnsPath`](#burns.BurnsPath) from [`to_dict()`](#burns.BurnsPath.to_dict) output.
-
-* **Return type:**
-  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 
 ### Examples
 
@@ -145,12 +142,12 @@ Rebuild a [`BurnsPath`](#burns.BurnsPath) from [`to_dict()`](#burns.BurnsPath.to
 True
 ```
 
+* **Return type:**
+  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
+
 #### *classmethod* from_start_end(start, end, , easing='ease-in-out', output_aspect=None)
 
 The canonical two-rectangle Ken Burns case (Start frame -> End frame).
-
-* **Return type:**
-  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 
 ### Examples
 
@@ -160,13 +157,13 @@ The canonical two-rectangle Ken Burns case (Start frame -> End frame).
 BurnsPath(keyframes=((0.0, Rect(...)), (1.0, Rect(...))), ...)
 ```
 
+* **Return type:**
+  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
+
 #### *classmethod* push_in(zoom=1.3, , to=(0.5, 0.5), easing='ease-in-out', output_aspect=None)
 
 The 90%-case constructor: a slow push from the full image toward
 `to` at `zoom`.
-
-* **Return type:**
-  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 
 ### Examples
 
@@ -175,15 +172,15 @@ The 90%-case constructor: a slow push from the full image toward
 1.3
 ```
 
+* **Return type:**
+  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
+
 #### reversed()
 
 Swap start and end (the NLE “Swap Start and End Areas” button).
 
 Mirrors every keyframe’s time about `0.5` and re-sorts, so the motion
 plays back-to-front. Easing/interp/output_aspect are preserved.
-
-* **Return type:**
-  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 
 ### Examples
 
@@ -193,15 +190,15 @@ plays back-to-front. Easing/interp/output_aspect are preserved.
 Rect(x=0.0, y=0.0, w=0.5, h=0.5)
 ```
 
+* **Return type:**
+  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
+
 #### to_dict()
 
 Serialize to the versioned JSON wire format (the cross-language SSOT).
 
 Easing is stored as the original CSS string / 4-tuple. A callable easing
 cannot be serialized and raises — use a CSS spec for paths that travel.
-
-* **Return type:**
-  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
 ### Examples
 
@@ -211,6 +208,9 @@ cannot be serialized and raises — use a CSS spec for paths that travel.
 >>> d["version"], d["easing"], len(d["keyframes"])
 (1, 'ease-in-out', 2)
 ```
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
 ### *exception* burns.MoveError
 
@@ -265,9 +265,6 @@ rather than shrinking — shrinking the box would change its aspect ratio
 and make the rendered frame breathe/stretch. Windows larger than the
 image in a dimension are centered in that dimension.
 
-* **Return type:**
-  [`Rect`](burns.rect.html.md#burns.rect.Rect)
-
 ### Examples
 
 ```pycon
@@ -276,6 +273,9 @@ Rect(x=0.5, y=0.0, w=0.5, h=0.5)
 >>> Rect(-0.2, 0.3, 0.4, 0.4).clamped()
 Rect(x=0.0, y=0.3, w=0.4, h=0.4)
 ```
+
+* **Return type:**
+  [`Rect`](burns.rect.html.md#burns.rect.Rect)
 
 #### *classmethod* from_center_zoom(cx, cy, zoom=1.0, , aspect=1.0)
 
@@ -289,9 +289,6 @@ isotropic window (`w == h`) whose rendered AR equals the source
 image’s — reproducing the legacy behavior exactly. The result is
 clamped to stay inside the image.
 
-* **Return type:**
-  [`Rect`](burns.rect.html.md#burns.rect.Rect)
-
 ### Examples
 
 ```pycon
@@ -301,12 +298,12 @@ Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 Rect(x=0.5, y=0.25, w=0.5, h=0.5)
 ```
 
+* **Return type:**
+  [`Rect`](burns.rect.html.md#burns.rect.Rect)
+
 #### is_contained()
 
 True when the window lies wholly inside the image.
-
-* **Return type:**
-  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
 
 ### Examples
 
@@ -317,12 +314,12 @@ True
 False
 ```
 
+* **Return type:**
+  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
+
 #### lerp(other, t)
 
 Linearly interpolate toward `other` by `t` in `[0, 1]`.
-
-* **Return type:**
-  [`Rect`](burns.rect.html.md#burns.rect.Rect)
 
 ### Examples
 
@@ -330,6 +327,9 @@ Linearly interpolate toward `other` by `t` in `[0, 1]`.
 >>> Rect(0, 0, 1, 1).lerp(Rect(0.25, 0.25, 0.5, 0.5), 0.5)
 Rect(x=0.125, y=0.125, w=0.75, h=0.75)
 ```
+
+* **Return type:**
+  [`Rect`](burns.rect.html.md#burns.rect.Rect)
 
 #### to_pixels(img_w, img_h)
 
@@ -339,9 +339,6 @@ Clamps first so the box is always inside the raster, then rounds (not
 truncates) for symmetric integer conversion. The returned box is a
 half-open crop region suitable for `ndarray[y0:y1, x0:x1]`.
 
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int)]
-
 ### Examples
 
 ```pycon
@@ -350,6 +347,9 @@ half-open crop region suitable for `ndarray[y0:y1, x0:x1]`.
 >>> Rect.from_center_zoom(0.5, 0.5, 2.0).to_pixels(100, 80)
 (25, 20, 75, 60)
 ```
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int), [`int`](https://docs.python.org/3/builtins/functions.html#int)]
 
 #### *property* zoom *: [float](https://docs.python.org/3/builtins/functions.html#float)*
 
@@ -382,9 +382,6 @@ A pure function of `seed` alone — not of the image, and not of any
 position in a sequence. That is what makes a panel’s move survive both a
 reorder and a swapped still.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ### Examples
 
 ```pycon
@@ -395,6 +392,9 @@ True
 >>> len({choose_move(s) for s in range(60)}) > 1   # not one move forever
 True
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### burns.content_aware_path(img_w, img_h, , subject=None, faces=(), index=0, output_aspect=None, zoom=1.3, min_zoom=1.05, keep_pad=0.18, mode='auto', easing='ease-in-out')
 
@@ -456,9 +456,6 @@ down. When given, [`salient_box()`](#burns.salient_box) is **not called**: the o
 total, and computing an estimate only to discard it is how a partial
 override quietly lets saliency back in.
 
-* **Return type:**
-  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
-
 ### Examples
 
 ```pycon
@@ -470,6 +467,9 @@ override quietly lets saliency back in.
 True
 ```
 
+* **Return type:**
+  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
+
 ### burns.cubic_bezier(x1, y1, x2, y2)
 
 A CSS-style cubic-bezier easing `f: [0, 1] -> [0, 1]`.
@@ -478,9 +478,6 @@ The curve runs from `(0, 0)` to `(1, 1)` with control points
 `(x1, y1)` and `(x2, y2)`. Evaluation inverts `x(t)` for the curve
 parameter (bisection — robust for any monotone-x curve) then returns
 `y(t)`.
-
-* **Return type:**
-  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)]
 
 ### Examples
 
@@ -492,12 +489,12 @@ parameter (bisection — robust for any monotone-x curve) then returns
 0.5
 ```
 
+* **Return type:**
+  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)]
+
 ### burns.get_backend(name='pillow')
 
 Look up a registered backend by name.
-
-* **Return type:**
-  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[`...`](https://docs.python.org/3/builtins/constants.html#Ellipsis), [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]
 
 ### Examples
 
@@ -505,6 +502,9 @@ Look up a registered backend by name.
 >>> get_backend() is get_backend("pillow")
 True
 ```
+
+* **Return type:**
+  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[`...`](https://docs.python.org/3/builtins/constants.html#Ellipsis), [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)]
 
 ### burns.ken_burns_film(panels, , saveas, fps=30, audio_path=None, codec='libx264', audio_codec='aac', \*\*write_kwargs)
 
@@ -561,7 +561,7 @@ Two styles:
   * **zoom** ([`float`](https://docs.python.org/3/builtins/functions.html#float)) – the zoomed-end magnification (> 1.0) for `"push"`.
   * **pan** ([`float`](https://docs.python.org/3/builtins/functions.html#float)) – focal-point offset (`"push"`) or total horizontal travel
     (`"drift"`), in `[0, 1]` image units.
-  * **easing** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. Default `"ease-in-out"` — the
+  * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. Default `"ease-in-out"` — the
     cinematic slow-in/slow-out. Pass `"linear"` for constant velocity.
   * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – aspect ratio the render should fill (`None` = match image).
 * **Return type:**
@@ -623,9 +623,6 @@ How `move` is grouped: `"zoom"`, `"drift"`, `"static"`, `"select"`.
 For a UI that wants a compass of directions separately from the rest, read
 off the same table [`resolve_move()`](#burns.resolve_move) dispatches on.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ### Examples
 
 ```pycon
@@ -634,6 +631,9 @@ off the same table [`resolve_move()`](#burns.resolve_move) dispatches on.
 >>> sorted(m for m in MOVES if move_kind(m) == 'drift')
 ['drift_down', 'drift_left', 'drift_right', 'drift_up']
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### burns.parse_easing(spec='ease-in-out')
 
@@ -673,7 +673,7 @@ Register a render backend under `name` (open-closed extension point).
 Resolve an authored camera intent against `image` into a path.
 
 * **Parameters:**
-  * **move** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath), [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]]) – a name from `MOVES`, or an explicit
+  * **move** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath), [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]]) – a name from `MOVES`, or an explicit
     [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath) / its `to_dict()` payload. The two
     are the two front doors on this one path: a stored panel that
     carries both a named move and a hand-corrected override passes the
@@ -710,7 +710,7 @@ Resolve an authored camera intent against `image` into a path.
   * **seed** ([`int`](https://docs.python.org/3/builtins/functions.html#int)) – chooses which move `"auto"` becomes, and nothing else. Mint it
     once per panel and store it; never derive it from a position, which
     is the defect this parameter exists to remove.
-  * **easing** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. A callable is fine here but
+  * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. A callable is fine here but
     cannot be serialized — see [`BurnsPath.to_dict()`](#burns.BurnsPath.to_dict). Applies to a
     named move; an explicit path carries its own.
   * **content_box** ([`Any`](https://docs.python.org/3/library/typing.html#typing.Any)) – the part of `image` that is picture, as a normalized
@@ -812,9 +812,6 @@ and fall away, so the bounding box of the high-gradient pixels tracks the
 subject. Robust to outliers via percentile trimming. Falls back to a
 centered box when the image is too uniform to decide.
 
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
-
 ### Examples
 
 ```pycon
@@ -824,6 +821,9 @@ centered box when the image is too uniform to decide.
 >>> 0.3 < x < 0.45 and 0.55 < y < 0.65   # box around the bright square
 True
 ```
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
 
 ### Modules
 

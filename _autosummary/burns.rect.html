@@ -7,6 +7,7 @@
     setColorMode(localStorage._theme||"auto");
   </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d88b86f9" />
     <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -207,11 +208,6 @@ reconciles the window with the desired output AR via a cover-crop.</p>
 rather than shrinking — shrinking the box would change its aspect ratio
 and make the rendered frame breathe/stretch. Windows larger than the
 image in a dimension are centered in that dimension.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#burns.rect.Rect" title="burns.rect.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a></span></p>
-</dd>
-</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">Rect</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">clamped</span><span class="p">()</span>
 </span><span data-line="2"><span class="go">Rect(x=0.5, y=0.0, w=0.5, h=0.5)</span>
@@ -219,6 +215,11 @@ image in a dimension are centered in that dimension.</p>
 </span><span data-line="4"><span class="go">Rect(x=0.0, y=0.3, w=0.4, h=0.4)</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#burns.rect.Rect" title="burns.rect.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -232,11 +233,6 @@ is the window’s normalized <code class="docutils literal notranslate"><span cl
 isotropic window (<code class="docutils literal notranslate"><span class="pre">w</span> <span class="pre">==</span> <span class="pre">h</span></code>) whose rendered AR equals the source
 image’s — reproducing the legacy behavior exactly. The result is
 clamped to stay inside the image.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#burns.rect.Rect" title="burns.rect.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a></span></p>
-</dd>
-</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">Rect(x=0.0, y=0.0, w=1.0, h=1.0)</span>
@@ -244,17 +240,17 @@ clamped to stay inside the image.</p>
 </span><span data-line="4"><span class="go">Rect(x=0.5, y=0.25, w=0.5, h=0.5)</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#burns.rect.Rect" title="burns.rect.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="burns.rect.Rect.is_contained">
 <span class="sig-name descname"><span class="pre">is_contained</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/burns/rect.html#Rect.is_contained"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#burns.rect.Rect.is_contained" title="Link to this definition">#</a></dt>
 <dd><p>True when the window lies wholly inside the image.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
-</dd>
-</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">Rect</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">is_contained</span><span class="p">()</span>
 </span><span data-line="2"><span class="go">True</span>
@@ -262,22 +258,27 @@ clamped to stay inside the image.</p>
 </span><span data-line="4"><span class="go">False</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="burns.rect.Rect.lerp">
 <span class="sig-name descname"><span class="pre">lerp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/burns/rect.html#Rect.lerp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#burns.rect.Rect.lerp" title="Link to this definition">#</a></dt>
 <dd><p>Linearly interpolate toward <code class="docutils literal notranslate"><span class="pre">other</span></code> by <code class="docutils literal notranslate"><span class="pre">t</span></code> in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#burns.rect.Rect" title="burns.rect.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a></span></p>
-</dd>
-</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">lerp</span><span class="p">(</span><span class="n">Rect</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mf">0.5</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">Rect(x=0.125, y=0.125, w=0.75, h=0.75)</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#burns.rect.Rect" title="burns.rect.Rect"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rect</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -287,11 +288,6 @@ clamped to stay inside the image.</p>
 <p>Clamps first so the box is always inside the raster, then rounds (not
 truncates) for symmetric integer conversion. The returned box is a
 half-open crop region suitable for <code class="docutils literal notranslate"><span class="pre">ndarray[y0:y1,</span> <span class="pre">x0:x1]</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</span></p>
-</dd>
-</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">Rect</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_pixels</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">(0, 0, 100, 80)</span>
@@ -299,6 +295,11 @@ half-open crop region suitable for <code class="docutils literal notranslate"><s
 </span><span data-line="4"><span class="go">(25, 20, 75, 60)</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -354,7 +355,7 @@ value an FFmpeg <code class="docutils literal notranslate"><span class="pre">zoo
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=2fd7553c"></script>
+      <script src="../_static/documentation_options.js?v=056c92e6"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
