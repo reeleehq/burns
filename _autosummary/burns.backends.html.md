@@ -22,8 +22,10 @@ per-clip backend cannot express.
 
 ### Functions
 
-| [`get_backend`](#burns.backends.get_backend)([name])                             | Look up a registered backend by name.                                    |
+| [`frame_count`](#burns.backends.frame_count)(duration, fps)                      | The frames a `duration`-second clip at `fps` has, for every backend.     |
 |--------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`frame_exact_clip`](#burns.backends.frame_exact_clip)(make_frame, duration, fps)     | A moviepy clip with exactly `frame_count(duration, fps)` frames.         |
+| [`get_backend`](#burns.backends.get_backend)([name])                             | Look up a registered backend by name.                                    |
 | [`pillow_backend`](#burns.backends.pillow_backend)(img_np, img_w, img_h, path, ...) | Default backend: lazy moviepy `VideoClip` + per-frame Pillow resampling. |
 | [`register_backend`](#burns.backends.register_backend)(name, backend)                 | Register a render backend under `name` (open-closed extension point).    |
 
@@ -50,6 +52,33 @@ Args mirror [`burns.ken_burns_video()`](burns.html.md#burns.ken_burns_video) aft
 image is already a decoded `(H, W, C)` uint8 array with its pixel size,
 and the output frame size `(out_w, out_h)` is already even-snapped.
 Returns the written path.
+
+### burns.backends.frame_count(duration, fps)
+
+The frames a `duration`-second clip at `fps` has, for every backend.
+
+The single definition. It rounds, as the fleet’s other assemblers do, and
+never returns less than one. moviepy alone would floor (1.99 s at 30 fps is
+59 frames), which is why [`pillow_backend()`](#burns.backends.pillow_backend) sizes its clip from this.
+
+### Examples
+
+```pycon
+>>> frame_count(9.0, 30), frame_count(1.99, 30), frame_count(0.001, 30)
+(270, 60, 1)
+```
+
+* **Return type:**
+  [`int`](https://docs.python.org/3/builtins/functions.html#int)
+
+### burns.backends.frame_exact_clip(make_frame, duration, fps)
+
+A moviepy clip with exactly `frame_count(duration, fps)` frames.
+
+Used by every moviepy-based render path, so they share one frame count.
+
+* **Return type:**
+  `VideoClip`
 
 ### burns.backends.get_backend(name='pillow')
 
