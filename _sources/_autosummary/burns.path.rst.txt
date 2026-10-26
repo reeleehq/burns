@@ -9,6 +9,7 @@ burns.path
    .. autosummary::
    
       ken_burns_path
+      window_aspect
    
    .. rubric:: Classes
 

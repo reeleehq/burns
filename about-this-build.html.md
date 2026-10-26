@@ -2,18 +2,16 @@
 
 # About this build
 
-This documentation was built on **2026-10-26 11:57 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/aacbb6b0ccf1979dd8234922a7ee28217d37f3b7"><code>aacbb6b</code></a> on branch <code>main</code>, for **burns 0.0.20** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-26 12:10 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/6f0e9ef7d5be23c1c8b314137614e6443b9a1707"><code>6f0e9ef</code></a> on branch <code>main</code>, for **burns 0.0.21** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.20) is behind the latest release on PyPI (0.0.21): `pip install burns` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                       |
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/reeleehq/burns/commit/aacbb6b0ccf1979dd8234922a7ee28217d37f3b7"><code>aacbb6b0ccf1979dd8234922a7ee28217d37f3b7</code></a> |
+| Commit              | <a href="https://github.com/reeleehq/burns/commit/6f0e9ef7d5be23c1c8b314137614e6443b9a1707"><code>6f0e9ef7d5be23c1c8b314137614e6443b9a1707</code></a> |
 | Branch              | <code>main</code>                                                                                                                                     |
 | Tags at this commit | none                                                                                                                                                  |
 | Working tree        | clean                                                                                                                                                 |
@@ -24,9 +22,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>reeleehq/burns</code>                                                                |
-| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/40318512089">40318512089</a>       |
+| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/40320150905">40320150905</a>       |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>aacbb6b0ccf1979dd8234922a7ee28217d37f3b7</code> (in the history of the built commit) |
+| Event commit | <code>6f0e9ef7d5be23c1c8b314137614e6443b9a1707</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -51,13 +49,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/burns/0.0.21/">0.0.21</a>, newer than the documented version (0.0.20).
+Latest release: <a href="https://pypi.org/project/burns/0.0.21/">0.0.21</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/reeleehq/burns && cd burns
-git checkout aacbb6b0ccf1979dd8234922a7ee28217d37f3b7
+git checkout 6f0e9ef7d5be23c1c8b314137614e6443b9a1707
 pip install "epythet==0.2.22"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

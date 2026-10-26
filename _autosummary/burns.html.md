@@ -160,20 +160,28 @@ BurnsPath(keyframes=((0.0, Rect(...)), (1.0, Rect(...))), ...)
 * **Return type:**
   [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 
-#### *classmethod* push_in(zoom=1.3, , to=(0.5, 0.5), easing='ease-in-out', output_aspect=None)
+#### *classmethod* push_in(zoom=1.3, , to=(0.5, 0.5), easing='ease-in-out', output_aspect=None, image_aspect=None)
 
 The 90%-case constructor: a slow push from the full image toward
 `to` at `zoom`.
+
+* **Parameters:**
+  * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the delivery’s `width / height` (see [`BurnsPath`](#burns.BurnsPath)).
+  * **image_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the source’s `width / height`. \*\*Pass it whenever
+    `output_aspect` is set\*\*; without it the source is treated as
+    square, and on any other shape the zoom-1.0 window already
+    crops the image (a 16:9 source loses ~44% of its height).
+* **Return type:**
+  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 
 ### Examples
 
 ```pycon
 >>> round(BurnsPath.push_in().evaluate(1.0).zoom, 4)
 1.3
+>>> BurnsPath.push_in(output_aspect=16 / 9, image_aspect=16 / 9).evaluate(0.0)
+Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 ```
-
-* **Return type:**
-  [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 
 #### reversed()
 
@@ -535,7 +543,7 @@ generation lazy via one global `make_frame(t)` closure.
 * **Returns:**
   The written mp4 [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path).
 
-### burns.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None)
+### burns.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None, image_aspect=None)
 
 A deterministic [`BurnsPath`](#burns.BurnsPath) for the `index`-th image of a sequence.
 
@@ -564,6 +572,9 @@ Two styles:
   * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. Default `"ease-in-out"` — the
     cinematic slow-in/slow-out. Pass `"linear"` for constant velocity.
   * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – aspect ratio the render should fill (`None` = match image).
+  * **image_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the source’s `width / height`. Pass it whenever
+    `output_aspect` is set (see [`BurnsPath.push_in()`](#burns.BurnsPath.push_in)); without it
+    the source is treated as square.
 * **Return type:**
   [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 * **Returns:**

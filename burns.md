@@ -1,4 +1,4 @@
-> built 2026-10-26 11:57 UTC from aacbb6b (main) · burns 0.0.20. Details: build_info.json
+> built 2026-10-26 12:10 UTC from 6f0e9ef (main) · burns 0.0.21. Details: build_info.json
 
 # index.html.md
 
@@ -126,7 +126,9 @@ stretches):
 
 ```python
 ken_burns_video(
-    "portrait.jpg", BurnsPath.push_in(1.4, output_aspect=16 / 9), duration=6.0
+    "portrait.jpg",
+    BurnsPath.push_in(1.4, output_aspect=16 / 9, image_aspect=3 / 4),
+    duration=6.0,
 )
 ```
 
@@ -328,7 +330,7 @@ motion.
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `Rect(x, y, w, h)`                                                                                                                                                    | A normalized viewport over the image. `.from_center_zoom`, `.clamped`, `.to_pixels`, `.zoom`, `.center`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `BurnsPath`                                                                                                                                                           | The motion spec. `.evaluate(t) -> Rect`, `.from_start_end`, `.push_in`, `.reversed`, `.to_dict` / `.from_dict`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `ken_burns_path(index, *, style="push", zoom=1.10, pan=0.03, easing="ease-in-out", output_aspect=None)`                                                               | Deterministic per-index `BurnsPath` for a sequence.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `ken_burns_path(index, *, style="push", zoom=1.10, pan=0.03, easing="ease-in-out", output_aspect=None, image_aspect=None)`                                            | Deterministic per-index `BurnsPath` for a sequence.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `salient_box(image, *, downscale=320, threshold_pct=72.0, trim_pct=4.0, pad=0.05, min_size=0.35)`                                                                     | Estimate the busy/detailed region of an image as a normalized `(x, y, w, h)` box.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `content_aware_path(img_w, img_h, *, subject=None, faces=(), index=0, output_aspect=None, zoom=1.3, min_zoom=1.05, keep_pad=0.18, mode="auto", easing="ease-in-out")` | Pure geometry: a `BurnsPath` that keeps a keep-region framed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `content_aware_path_for(image, *, subject=None, faces=(), faces_detector=None, index=0, output_aspect=None, **kwargs)`                                                | The same, deriving subject (`salient_box`) and faces from the image itself. An explicit `subject` replaces the saliency estimate, which is then not computed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -926,20 +928,28 @@ BurnsPath(keyframes=((0.0, Rect(...)), (1.0, Rect(...))), ...)
 * **Return type:**
   [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)
 
-#### *classmethod* push_in(zoom=1.3, , to=(0.5, 0.5), easing='ease-in-out', output_aspect=None)
+#### *classmethod* push_in(zoom=1.3, , to=(0.5, 0.5), easing='ease-in-out', output_aspect=None, image_aspect=None)
 
 The 90%-case constructor: a slow push from the full image toward
 `to` at `zoom`.
+
+* **Parameters:**
+  * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the delivery’s `width / height` (see [`BurnsPath`](_autosummary/burns.html.md#burns.BurnsPath)).
+  * **image_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the source’s `width / height`. \*\*Pass it whenever
+    `output_aspect` is set\*\*; without it the source is treated as
+    square, and on any other shape the zoom-1.0 window already
+    crops the image (a 16:9 source loses ~44% of its height).
+* **Return type:**
+  [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)
 
 ### Examples
 
 ```pycon
 >>> round(BurnsPath.push_in().evaluate(1.0).zoom, 4)
 1.3
+>>> BurnsPath.push_in(output_aspect=16 / 9, image_aspect=16 / 9).evaluate(0.0)
+Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 ```
-
-* **Return type:**
-  [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)
 
 #### reversed()
 
@@ -1301,7 +1311,7 @@ generation lazy via one global `make_frame(t)` closure.
 * **Returns:**
   The written mp4 [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path).
 
-### burns.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None)
+### burns.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None, image_aspect=None)
 
 A deterministic [`BurnsPath`](_autosummary/burns.html.md#burns.BurnsPath) for the `index`-th image of a sequence.
 
@@ -1330,6 +1340,9 @@ Two styles:
   * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. Default `"ease-in-out"` — the
     cinematic slow-in/slow-out. Pass `"linear"` for constant velocity.
   * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – aspect ratio the render should fill (`None` = match image).
+  * **image_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the source’s `width / height`. Pass it whenever
+    `output_aspect` is set (see [`BurnsPath.push_in()`](_autosummary/burns.html.md#burns.BurnsPath.push_in)); without it
+    the source is treated as square.
 * **Return type:**
   [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)
 * **Returns:**
@@ -2011,7 +2024,11 @@ The model mirrors the professional NLE consensus and Remotion’s
   motion *speed*. Default `"ease-in-out"` (the cinematic norm).
 - **output_aspect** is metadata: the aspect ratio the render should fill. When
   it differs from the source image’s AR the renderer cover-crops; when `None`
-  the output AR equals the image’s. It never affects `evaluate()`.
+  the output AR equals the image’s. `evaluate()` never reads it: it only
+  travels with the path. The *constructors* ([`BurnsPath.push_in()`](_autosummary/burns.path.html.md#burns.path.BurnsPath.push_in),
+  [`ken_burns_path()`](_autosummary/burns.path.html.md#burns.path.ken_burns_path)) do read it, to shape the rectangles they build, and a
+  > rect’s `w / h` is in image-normalised units, so they also need the source’s
+  > aspect (`image_aspect`) to get a window that really has the output’s shape.
 
 [`ken_burns_path()`](_autosummary/burns.path.html.md#burns.path.ken_burns_path) is a convenience generator: it maps a small intent
 vocabulary (a sequence index, a style, a zoom, a pan) to a cohesive, fully
@@ -2022,6 +2039,7 @@ non-repetitive motion without hand-authoring rectangles.
 
 | [`ken_burns_path`](_autosummary/burns.path.html.md#burns.path.ken_burns_path)(index, \*[, style, zoom, pan, ...])   | A deterministic [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath) for the `index`-th image of a sequence.   |
 |-------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| [`window_aspect`](_autosummary/burns.path.html.md#burns.path.window_aspect)(output_aspect[, image_aspect])         | The `w / h` a rect needs, in image-normalised units, to show `output_aspect`.                                        |
 
 ### Classes
 
@@ -2121,20 +2139,28 @@ BurnsPath(keyframes=((0.0, Rect(...)), (1.0, Rect(...))), ...)
 * **Return type:**
   [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)
 
-#### *classmethod* push_in(zoom=1.3, , to=(0.5, 0.5), easing='ease-in-out', output_aspect=None)
+#### *classmethod* push_in(zoom=1.3, , to=(0.5, 0.5), easing='ease-in-out', output_aspect=None, image_aspect=None)
 
 The 90%-case constructor: a slow push from the full image toward
 `to` at `zoom`.
+
+* **Parameters:**
+  * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the delivery’s `width / height` (see [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)).
+  * **image_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the source’s `width / height`. \*\*Pass it whenever
+    `output_aspect` is set\*\*; without it the source is treated as
+    square, and on any other shape the zoom-1.0 window already
+    crops the image (a 16:9 source loses ~44% of its height).
+* **Return type:**
+  [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)
 
 ### Examples
 
 ```pycon
 >>> round(BurnsPath.push_in().evaluate(1.0).zoom, 4)
 1.3
+>>> BurnsPath.push_in(output_aspect=16 / 9, image_aspect=16 / 9).evaluate(0.0)
+Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 ```
-
-* **Return type:**
-  [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)
 
 #### reversed()
 
@@ -2173,7 +2199,7 @@ cannot be serialized and raises — use a CSS spec for paths that travel.
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
-### burns.path.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None)
+### burns.path.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None, image_aspect=None)
 
 A deterministic [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath) for the `index`-th image of a sequence.
 
@@ -2202,6 +2228,9 @@ Two styles:
   * **easing** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)[[[`float`](https://docs.python.org/3/builtins/functions.html#float)], [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`Sequence`](https://docs.python.org/3/library/typing.html#typing.Sequence)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – CSS timing function or callable. Default `"ease-in-out"` — the
     cinematic slow-in/slow-out. Pass `"linear"` for constant velocity.
   * **output_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – aspect ratio the render should fill (`None` = match image).
+  * **image_aspect** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`float`](https://docs.python.org/3/builtins/functions.html#float)]) – the source’s `width / height`. Pass it whenever
+    `output_aspect` is set (see [`BurnsPath.push_in()`](_autosummary/burns.path.html.md#burns.path.BurnsPath.push_in)); without it
+    the source is treated as square.
 * **Return type:**
   [`BurnsPath`](_autosummary/burns.path.html.md#burns.path.BurnsPath)
 * **Returns:**
@@ -2217,6 +2246,32 @@ Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 >>> ken_burns_path(3) == ken_burns_path(3)  # deterministic
 True
 ```
+
+### burns.path.window_aspect(output_aspect, image_aspect=None)
+
+The `w / h` a rect needs, in image-normalised units, to show `output_aspect`.
+
+A rect’s sides are fractions of the image’s own sides, so a window that is
+16:9 on screen over a 16:9 image is the *square* `w == h == 1` in these
+units. The ratio is `output_aspect / image_aspect`.
+
+`image_aspect=None` keeps the original behaviour, which treats the source
+as square and is only right for a square source; it emits a
+[`FutureWarning`](https://docs.python.org/3/builtins/exceptions.html#FutureWarning). Non-positive or non-finite aspects raise.
+
+### Examples
+
+```pycon
+>>> window_aspect(16 / 9, 16 / 9)  # same shape: the full frame
+1.0
+>>> round(window_aspect(16 / 9, 4 / 3), 4)  # 4:3 source, 16:9 delivery
+1.3333
+>>> window_aspect(None, 4 / 3)
+1.0
+```
+
+* **Return type:**
+  [`float`](https://docs.python.org/3/builtins/functions.html#float)
 
 
 # _autosummary/burns.rect.html.md
@@ -2482,18 +2537,16 @@ Render one image into a pan/zoom video from a `BurnsPath`.
 
 # About this build
 
-This documentation was built on **2026-10-26 11:57 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/aacbb6b0ccf1979dd8234922a7ee28217d37f3b7"><code>aacbb6b</code></a> on branch <code>main</code>, for **burns 0.0.20** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-26 12:10 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/6f0e9ef7d5be23c1c8b314137614e6443b9a1707"><code>6f0e9ef</code></a> on branch <code>main</code>, for **burns 0.0.21** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.20) is behind the latest release on PyPI (0.0.21): `pip install burns` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                       |
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/reeleehq/burns/commit/aacbb6b0ccf1979dd8234922a7ee28217d37f3b7"><code>aacbb6b0ccf1979dd8234922a7ee28217d37f3b7</code></a> |
+| Commit              | <a href="https://github.com/reeleehq/burns/commit/6f0e9ef7d5be23c1c8b314137614e6443b9a1707"><code>6f0e9ef7d5be23c1c8b314137614e6443b9a1707</code></a> |
 | Branch              | <code>main</code>                                                                                                                                     |
 | Tags at this commit | none                                                                                                                                                  |
 | Working tree        | clean                                                                                                                                                 |
@@ -2504,9 +2557,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>reeleehq/burns</code>                                                                |
-| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/40318512089">40318512089</a>       |
+| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/40320150905">40320150905</a>       |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>aacbb6b0ccf1979dd8234922a7ee28217d37f3b7</code> (in the history of the built commit) |
+| Event commit | <code>6f0e9ef7d5be23c1c8b314137614e6443b9a1707</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2531,13 +2584,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/burns/0.0.21/">0.0.21</a>, newer than the documented version (0.0.20).
+Latest release: <a href="https://pypi.org/project/burns/0.0.21/">0.0.21</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/reeleehq/burns && cd burns
-git checkout aacbb6b0ccf1979dd8234922a7ee28217d37f3b7
+git checkout 6f0e9ef7d5be23c1c8b314137614e6443b9a1707
 pip install "epythet==0.2.22"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
