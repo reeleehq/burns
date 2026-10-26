@@ -230,18 +230,17 @@ class TestTheOutputIsWhatWasAskedFor:
         with pytest.raises(FfmpegBackendError, match='backend="pillow"'):
             render(smooth_image(), BurnsPath.push_in(1.2), tmp_path / "x.mp4")
 
-    def test_a_retimed_stream_is_refused(self, tmp_path, monkeypatch):
-        """The 225-for-270 shape: right-ish length, wrong clock (burns#31)."""
-        import looks.motion
-
-        real = looks.motion.compile_motion
-        monkeypatch.setattr(
-            looks.motion,
-            "compile_motion",
-            lambda *a, **k: real(*a, **k) + ",setpts=PTS*30/25",
-        )
+    def test_a_wrong_frame_rate_is_refused(self, tmp_path, monkeypatch):
+        """The 225-for-270 shape: the right count at the wrong clock (burns#31)."""
+        monkeypatch.setattr("burns._ffmpeg.probe_video", lambda *a: (90, 25.0))
         with pytest.raises(FfmpegBackendError, match='backend="pillow"'):
-            render(smooth_image(), BurnsPath.push_in(1.2), tmp_path / "r.mp4", fps=30)
+            render(
+                smooth_image(),
+                BurnsPath.push_in(1.2),
+                tmp_path / "r.mp4",
+                duration=3.0,
+                fps=30,
+            )
 
     def test_less_than_one_frame_is_refused(self, tmp_path):
         with pytest.raises(FfmpegBackendError, match="less than one frame"):
