@@ -100,7 +100,7 @@ DFLT_WRITE_KWARGS = {"bitrate": "5000k", "preset": "medium"}
 WRITE_KWARGS_IGNORED = ("logger",)
 
 
-#: What ffmpeg's progress line says about a stream it has finished copying.
+#: What ffmpeg's progress line says about a stream it has finished decoding.
 _FRAME_COUNT_RE = re.compile(r"frame=\s*(\d+)")
 #: The stream's frame rate, as ffmpeg's input banner prints it.
 _STREAM_FPS_RE = re.compile(r"Video:.*?,\s*([\d.]+) fps")
@@ -123,7 +123,8 @@ def expected_frame_count(duration: float, fps: int) -> int:
 def probe_video(binary: str, video: Path) -> tuple[int, float]:
     """``(frame count, frame rate)`` of ``video``, measured by ffmpeg itself.
 
-    Copies the stream to the null muxer and reads the final ``frame=`` of the
+    Decodes the stream to the null muxer (a stream copy omits ``frame=`` on some
+    Linux builds) and reads the final ``frame=`` of the
     progress line, so it needs no `ffprobe` — the bundled binary has none.
     """
     proc = subprocess.run(
@@ -134,8 +135,6 @@ def probe_video(binary: str, video: Path) -> tuple[int, float]:
             str(video),
             "-map",
             "0:v:0",
-            "-c",
-            "copy",
             "-f",
             "null",
             "-",
