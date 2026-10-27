@@ -94,7 +94,9 @@ class TestKenBurnsFilm:
         assert result.exists() and result.stat().st_size > 0
 
     @pytest.mark.parametrize("encode_fails", [False, True])
-    def test_a_film_with_audio_leaves_nothing_in_the_cwd_or_beside_it(self, tmp_path, monkeypatch, encode_fails):
+    def test_a_film_with_audio_leaves_nothing_in_the_cwd_or_beside_it(
+        self, tmp_path, monkeypatch, encode_fails
+    ):
         """MoviePy muxes audio through a temp file in the cwd unless told otherwise and
         removes it only after a successful encode, so a failed one left it wherever the
         caller ran (reeleehq/reelee#747); burns keeps it in a directory it removes."""
@@ -105,9 +107,12 @@ class TestKenBurnsFilm:
         sound = tmp_path / "in" / "tone.wav"
         sound.parent.mkdir()
         with wave.open(str(sound), "wb") as w:
-            w.setnchannels(1), w.setsampwidth(2), w.setframerate(8000)
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(8000)
             w.writeframes(np.zeros(8000, dtype=np.int16).tobytes())
         if encode_fails:
+
             def broken_encoder(*args, **kwargs):
                 raise OSError("encoder died")
 
@@ -124,7 +129,32 @@ class TestKenBurnsFilm:
         else:
             ken_burns_film(film, saveas=str(out), fps=10, audio_path=str(sound))
         assert list(cwd.iterdir()) == []
-        assert [p.name for p in out.parent.iterdir()] == ([] if encode_fails else ["film.mp4"])
+        assert [p.name for p in out.parent.iterdir()] == (
+            [] if encode_fails else ["film.mp4"]
+        )
+
+    def test_a_caller_who_keeps_the_temp_audio_gets_it_where_they_said(self, tmp_path):
+        import wave
+
+        sound = tmp_path / "tone.wav"
+        with wave.open(str(sound), "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(8000)
+            w.writeframes(np.zeros(8000, dtype=np.int16).tobytes())
+        keep = tmp_path / "keep"
+        keep.mkdir()
+        film = [(_gradient_image(), ken_burns_path(1), 0.5)]
+        out = tmp_path / "film.mp4"
+        ken_burns_film(
+            film,
+            saveas=str(out),
+            fps=10,
+            audio_path=str(sound),
+            temp_audiofile_path=str(keep),
+            remove_temp=False,
+        )
+        assert [p.name for p in keep.iterdir()] == ["filmTEMP_MPY_wvf_snd.mp4"]
 
     def test_panel_must_be_triple(self, tmp_path):
         with pytest.raises(ValueError, match="triple"):

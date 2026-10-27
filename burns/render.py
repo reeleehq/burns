@@ -236,4 +236,6 @@ def ken_burns_film(
     if audio_path is not None:
         clip = clip.with_audio(mp.AudioFileClip(str(audio_path)))
 
-    return write_clip(clip, output_path, codec=codec, audio_codec=audio_codec, **write_kwargs)
+    return write_clip(
+        clip, output_path, codec=codec, audio_codec=audio_codec, **write_kwargs
+    )
