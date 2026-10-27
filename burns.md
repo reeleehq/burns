@@ -1,4 +1,4 @@
-> built 2026-10-26 12:53 UTC from e5ef42e (main) · burns 0.0.24. Details: build_info.json
+> built 2026-10-27 16:30 UTC from d049b43 (main) · burns 0.0.25. Details: build_info.json
 
 # index.html.md
 
@@ -370,12 +370,13 @@ per-clip backend cannot express.
 
 ### Functions
 
-| [`frame_count`](_autosummary/burns.backends.html.md#burns.backends.frame_count)(duration, fps)                      | The frames a `duration`-second clip at `fps` has, for every backend.     |
-|--------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`frame_exact_clip`](_autosummary/burns.backends.html.md#burns.backends.frame_exact_clip)(make_frame, duration, fps)     | A moviepy clip with exactly `frame_count(duration, fps)` frames.         |
-| [`get_backend`](_autosummary/burns.backends.html.md#burns.backends.get_backend)([name])                             | Look up a registered backend by name.                                    |
-| [`pillow_backend`](_autosummary/burns.backends.html.md#burns.backends.pillow_backend)(img_np, img_w, img_h, path, ...) | Default backend: lazy moviepy `VideoClip` + per-frame Pillow resampling. |
-| [`register_backend`](_autosummary/burns.backends.html.md#burns.backends.register_backend)(name, backend)                 | Register a render backend under `name` (open-closed extension point).    |
+| [`frame_count`](_autosummary/burns.backends.html.md#burns.backends.frame_count)(duration, fps)                      | The frames a `duration`-second clip at `fps` has, for every backend.       |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`frame_exact_clip`](_autosummary/burns.backends.html.md#burns.backends.frame_exact_clip)(make_frame, duration, fps)     | A moviepy clip with exactly `frame_count(duration, fps)` frames.           |
+| [`get_backend`](_autosummary/burns.backends.html.md#burns.backends.get_backend)([name])                             | Look up a registered backend by name.                                      |
+| [`pillow_backend`](_autosummary/burns.backends.html.md#burns.backends.pillow_backend)(img_np, img_w, img_h, path, ...) | Default backend: lazy moviepy `VideoClip` + per-frame Pillow resampling.   |
+| [`register_backend`](_autosummary/burns.backends.html.md#burns.backends.register_backend)(name, backend)                 | Register a render backend under `name` (open-closed extension point).      |
+| [`write_clip`](_autosummary/burns.backends.html.md#burns.backends.write_clip)(clip, output, \*, codec, ...)        | `clip.write_videofile(output)` with burns' encode defaults, then close it. |
 
 ### Classes
 
@@ -459,6 +460,20 @@ Register a render backend under `name` (open-closed extension point).
 
 * **Return type:**
   [`None`](https://docs.python.org/3/builtins/constants.html#None)
+
+### burns.backends.write_clip(clip, output, , codec, audio_codec, \*\*write_kwargs)
+
+`clip.write_videofile(output)` with burns’ encode defaults, then close it.
+
+MoviePy muxes audio through a temp file it writes to the **current directory**
+unless told otherwise (`<stem>TEMP_MPY_wvf_snd.<ext>`) and removes it only
+after a successful encode, so a failed one left it wherever its caller ran
+(reeleehq/reelee#747). Unless the caller places or keeps that file itself
+(`temp_audiofile`, `temp_audiofile_path`, `remove_temp=False`), it goes in a
+private directory beside `output`, removed whatever happens.
+
+* **Return type:**
+  [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 
 # _autosummary/burns.content.html.md
@@ -2584,18 +2599,16 @@ Render one image into a pan/zoom video from a `BurnsPath`.
 
 # About this build
 
-This documentation was built on **2026-10-26 12:53 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/e5ef42e86606a3eb2507e9eac17f15b48e5d18ee"><code>e5ef42e</code></a> on branch <code>main</code>, for **burns 0.0.24** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-27 16:30 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/d049b43e62a1349f26d1f27d3f51bda5e826eb08"><code>d049b43</code></a> on branch <code>main</code>, for **burns 0.0.25** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.24) is behind the latest release on PyPI (0.0.25): `pip install burns` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                       |
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/reeleehq/burns/commit/e5ef42e86606a3eb2507e9eac17f15b48e5d18ee"><code>e5ef42e86606a3eb2507e9eac17f15b48e5d18ee</code></a> |
+| Commit              | <a href="https://github.com/reeleehq/burns/commit/d049b43e62a1349f26d1f27d3f51bda5e826eb08"><code>d049b43e62a1349f26d1f27d3f51bda5e826eb08</code></a> |
 | Branch              | <code>main</code>                                                                                                                                     |
 | Tags at this commit | none                                                                                                                                                  |
 | Working tree        | clean                                                                                                                                                 |
@@ -2606,9 +2619,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>reeleehq/burns</code>                                                                |
-| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/40325428045">40325428045</a>       |
+| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/40539774248">40539774248</a>       |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>e5ef42e86606a3eb2507e9eac17f15b48e5d18ee</code> (in the history of the built commit) |
+| Event commit | <code>d049b43e62a1349f26d1f27d3f51bda5e826eb08</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2633,13 +2646,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/burns/0.0.25/">0.0.25</a>, newer than the documented version (0.0.24).
+Latest release: <a href="https://pypi.org/project/burns/0.0.25/">0.0.25</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/reeleehq/burns && cd burns
-git checkout e5ef42e86606a3eb2507e9eac17f15b48e5d18ee
+git checkout d049b43e62a1349f26d1f27d3f51bda5e826eb08
 pip install "epythet==0.2.22"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

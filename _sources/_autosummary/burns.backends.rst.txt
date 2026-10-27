@@ -19,6 +19,7 @@ burns.backends
       get_backend
       pillow_backend
       register_backend
+      write_clip
    
    .. rubric:: Classes
 

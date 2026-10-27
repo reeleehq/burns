@@ -22,12 +22,13 @@ per-clip backend cannot express.
 
 ### Functions
 
-| [`frame_count`](#burns.backends.frame_count)(duration, fps)                      | The frames a `duration`-second clip at `fps` has, for every backend.     |
-|--------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`frame_exact_clip`](#burns.backends.frame_exact_clip)(make_frame, duration, fps)     | A moviepy clip with exactly `frame_count(duration, fps)` frames.         |
-| [`get_backend`](#burns.backends.get_backend)([name])                             | Look up a registered backend by name.                                    |
-| [`pillow_backend`](#burns.backends.pillow_backend)(img_np, img_w, img_h, path, ...) | Default backend: lazy moviepy `VideoClip` + per-frame Pillow resampling. |
-| [`register_backend`](#burns.backends.register_backend)(name, backend)                 | Register a render backend under `name` (open-closed extension point).    |
+| [`frame_count`](#burns.backends.frame_count)(duration, fps)                      | The frames a `duration`-second clip at `fps` has, for every backend.       |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`frame_exact_clip`](#burns.backends.frame_exact_clip)(make_frame, duration, fps)     | A moviepy clip with exactly `frame_count(duration, fps)` frames.           |
+| [`get_backend`](#burns.backends.get_backend)([name])                             | Look up a registered backend by name.                                      |
+| [`pillow_backend`](#burns.backends.pillow_backend)(img_np, img_w, img_h, path, ...) | Default backend: lazy moviepy `VideoClip` + per-frame Pillow resampling.   |
+| [`register_backend`](#burns.backends.register_backend)(name, backend)                 | Register a render backend under `name` (open-closed extension point).      |
+| [`write_clip`](#burns.backends.write_clip)(clip, output, \*, codec, ...)        | `clip.write_videofile(output)` with burns' encode defaults, then close it. |
 
 ### Classes
 
@@ -111,3 +112,17 @@ Register a render backend under `name` (open-closed extension point).
 
 * **Return type:**
   [`None`](https://docs.python.org/3/builtins/constants.html#None)
+
+### burns.backends.write_clip(clip, output, , codec, audio_codec, \*\*write_kwargs)
+
+`clip.write_videofile(output)` with burns’ encode defaults, then close it.
+
+MoviePy muxes audio through a temp file it writes to the **current directory**
+unless told otherwise (`<stem>TEMP_MPY_wvf_snd.<ext>`) and removes it only
+after a successful encode, so a failed one left it wherever its caller ran
+(reeleehq/reelee#747). Unless the caller places or keeps that file itself
+(`temp_audiofile`, `temp_audiofile_path`, `remove_temp=False`), it goes in a
+private directory beside `output`, removed whatever happens.
+
+* **Return type:**
+  [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)

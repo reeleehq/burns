@@ -97,6 +97,7 @@ data-aria-dark="Switch to auto color mode">
 <li><a class="reference internal" href="#burns.backends.get_backend"><code class="docutils literal notranslate"><span class="pre">get_backend()</span></code></a></li>
 <li><a class="reference internal" href="#burns.backends.pillow_backend"><code class="docutils literal notranslate"><span class="pre">pillow_backend()</span></code></a></li>
 <li><a class="reference internal" href="#burns.backends.register_backend"><code class="docutils literal notranslate"><span class="pre">register_backend()</span></code></a></li>
+<li><a class="reference internal" href="#burns.backends.write_clip"><code class="docutils literal notranslate"><span class="pre">write_clip()</span></code></a></li>
 </ul>
 </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
   </aside>
@@ -177,6 +178,9 @@ per-clip backend cannot express.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#burns.backends.register_backend" title="burns.backends.register_backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_backend</span></code></a>(name, backend)</p></td>
 <td><p>Register a render backend under <code class="docutils literal notranslate"><span class="pre">name</span></code> (open-closed extension point).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#burns.backends.write_clip" title="burns.backends.write_clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_clip</span></code></a>(clip, output, *, codec, ...)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">clip.write_videofile(output)</span></code> with burns' encode defaults, then close it.</p></td>
 </tr>
 </tbody>
 </table>
@@ -284,6 +288,23 @@ stair-step).</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="burns.backends.write_clip">
+<span class="sig-prename descclassname"><span class="pre">burns.backends.</span></span><span class="sig-name descname"><span class="pre">write_clip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_codec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">write_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/burns/backends.html#write_clip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#burns.backends.write_clip" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">clip.write_videofile(output)</span></code> with burns’ encode defaults, then close it.</p>
+<p>MoviePy muxes audio through a temp file it writes to the <strong>current directory</strong>
+unless told otherwise (<code class="docutils literal notranslate"><span class="pre">&lt;stem&gt;TEMP_MPY_wvf_snd.&lt;ext&gt;</span></code>) and removes it only
+after a successful encode, so a failed one left it wherever its caller ran
+(reeleehq/reelee#747). Unless the caller places or keeps that file itself
+(<code class="docutils literal notranslate"><span class="pre">temp_audiofile</span></code>, <code class="docutils literal notranslate"><span class="pre">temp_audiofile_path</span></code>, <code class="docutils literal notranslate"><span class="pre">remove_temp=False</span></code>), it goes in a
+private directory beside <code class="docutils literal notranslate"><span class="pre">output</span></code>, removed whatever happens.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article><button class="back-to-top" type="button">
@@ -326,7 +347,7 @@ stair-step).</p>
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=f91d8841"></script>
+      <script src="../_static/documentation_options.js?v=5d650c58"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
