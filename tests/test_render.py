@@ -93,6 +93,39 @@ class TestKenBurnsFilm:
         result = ken_burns_film(panels, saveas=str(out), fps=10)
         assert result.exists() and result.stat().st_size > 0
 
+    @pytest.mark.parametrize("encode_fails", [False, True])
+    def test_a_film_with_audio_leaves_nothing_in_the_cwd_or_beside_it(self, tmp_path, monkeypatch, encode_fails):
+        """MoviePy muxes audio through a temp file in the cwd unless told otherwise and
+        removes it only after a successful encode, so a failed one left it wherever the
+        caller ran (reeleehq/reelee#747); burns keeps it in a directory it removes."""
+        import wave
+
+        import moviepy.video.VideoClip as moviepy_clip
+
+        sound = tmp_path / "in" / "tone.wav"
+        sound.parent.mkdir()
+        with wave.open(str(sound), "wb") as w:
+            w.setnchannels(1), w.setsampwidth(2), w.setframerate(8000)
+            w.writeframes(np.zeros(8000, dtype=np.int16).tobytes())
+        if encode_fails:
+            def broken_encoder(*args, **kwargs):
+                raise OSError("encoder died")
+
+            monkeypatch.setattr(moviepy_clip, "ffmpeg_write_video", broken_encoder)
+        cwd = tmp_path / "cwd"
+        cwd.mkdir()
+        monkeypatch.chdir(cwd)
+        out = tmp_path / "out" / "film.mp4"
+        out.parent.mkdir()
+        film = [(_gradient_image(), ken_burns_path(1), 0.5)]
+        if encode_fails:
+            with pytest.raises(OSError, match="encoder died"):
+                ken_burns_film(film, saveas=str(out), fps=10, audio_path=str(sound))
+        else:
+            ken_burns_film(film, saveas=str(out), fps=10, audio_path=str(sound))
+        assert list(cwd.iterdir()) == []
+        assert [p.name for p in out.parent.iterdir()] == ([] if encode_fails else ["film.mp4"])
+
     def test_panel_must_be_triple(self, tmp_path):
         with pytest.raises(ValueError, match="triple"):
             ken_burns_film(

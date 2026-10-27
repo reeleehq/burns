@@ -16,6 +16,7 @@ per-clip backend cannot express.
 
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
 from typing import Callable, Protocol
 
@@ -112,12 +113,24 @@ def pillow_backend(
         return sample_frame(path, t / duration, img_np, img_w, img_h, out_w, out_h)
 
     clip = frame_exact_clip(make_frame, duration, fps)
+    return write_clip(clip, output, codec=codec, audio_codec=audio_codec, **write_kwargs)
+
+
+def write_clip(clip: mp.VideoClip, output: Path, *, codec: str, audio_codec: str, **write_kwargs) -> Path:
+    """``clip.write_videofile(output)`` with burns' encode defaults, then close it.
+
+    MoviePy muxes audio through a temp file it writes to the **current directory**
+    unless told otherwise (``<stem>TEMP_MPY_wvf_snd.<ext>``), so a render left
+    one wherever its caller happened to run (reeleehq/reelee#747). It goes in a
+    private directory beside ``output`` instead, removed whatever happens.
+    """
     write_kwargs.setdefault("bitrate", "5000k")
     write_kwargs.setdefault("preset", "medium")
     write_kwargs.setdefault("logger", None)
-    clip.write_videofile(
-        str(output), codec=codec, audio_codec=audio_codec, **write_kwargs
-    )
+    output = Path(output)
+    with tempfile.TemporaryDirectory(prefix=".burns-", dir=output.parent) as tmp:
+        write_kwargs.setdefault("temp_audiofile_path", tmp)
+        clip.write_videofile(str(output), codec=codec, audio_codec=audio_codec, **write_kwargs)
     clip.close()
     return output
 
