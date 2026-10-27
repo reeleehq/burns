@@ -16,6 +16,8 @@ per-clip backend cannot express.
 
 from __future__ import annotations
 
+import contextlib
+import tempfile
 from pathlib import Path
 from typing import Callable, Protocol
 
@@ -112,13 +114,48 @@ def pillow_backend(
         return sample_frame(path, t / duration, img_np, img_w, img_h, out_w, out_h)
 
     clip = frame_exact_clip(make_frame, duration, fps)
+    return write_clip(
+        clip, output, codec=codec, audio_codec=audio_codec, **write_kwargs
+    )
+
+
+def write_clip(
+    clip: mp.VideoClip, output: Path, *, codec: str, audio_codec: str, **write_kwargs
+) -> Path:
+    """``clip.write_videofile(output)`` with burns' encode defaults, then close it.
+
+    MoviePy muxes audio through a temp file it writes to the **current directory**
+    unless told otherwise (``<stem>TEMP_MPY_wvf_snd.<ext>``) and removes it only
+    after a successful encode, so a failed one left it wherever its caller ran
+    (reeleehq/reelee#747). Unless the caller places or keeps that file itself
+    (``temp_audiofile``, ``temp_audiofile_path``, ``remove_temp=False``), it goes in a
+    private directory beside ``output``, removed whatever happens.
+    """
     write_kwargs.setdefault("bitrate", "5000k")
     write_kwargs.setdefault("preset", "medium")
     write_kwargs.setdefault("logger", None)
-    clip.write_videofile(
-        str(output), codec=codec, audio_codec=audio_codec, **write_kwargs
+    output = Path(output)
+    caller_places_it = (
+        "temp_audiofile" in write_kwargs
+        or "temp_audiofile_path" in write_kwargs
+        or write_kwargs.get("remove_temp") is False
     )
-    clip.close()
+    private = (
+        contextlib.nullcontext(None)
+        if caller_places_it or clip.audio is None
+        else tempfile.TemporaryDirectory(
+            prefix=".burns-", dir=output.parent, ignore_cleanup_errors=True
+        )
+    )
+    try:
+        with private as tmp:
+            if tmp is not None:
+                write_kwargs["temp_audiofile_path"] = tmp
+            clip.write_videofile(
+                str(output), codec=codec, audio_codec=audio_codec, **write_kwargs
+            )
+    finally:
+        clip.close()
     return output
 
 

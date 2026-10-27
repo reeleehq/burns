@@ -27,7 +27,7 @@ from PIL import Image as PIL_Image
 
 from burns._frame import output_size_for, sample_frame
 from burns._util import _auto_video_path, _ensure_output_path, _non_colliding_key
-from burns.backends import DFLT_BACKEND, frame_exact_clip, get_backend
+from burns.backends import DFLT_BACKEND, frame_exact_clip, get_backend, write_clip
 from burns.path import BurnsPath, PanelInput
 from burns.rect import Rect
 
@@ -236,11 +236,6 @@ def ken_burns_film(
     if audio_path is not None:
         clip = clip.with_audio(mp.AudioFileClip(str(audio_path)))
 
-    write_kwargs.setdefault("bitrate", "5000k")
-    write_kwargs.setdefault("preset", "medium")
-    write_kwargs.setdefault("logger", None)
-    clip.write_videofile(
-        str(output_path), codec=codec, audio_codec=audio_codec, **write_kwargs
+    return write_clip(
+        clip, output_path, codec=codec, audio_codec=audio_codec, **write_kwargs
     )
-    clip.close()
-    return output_path
