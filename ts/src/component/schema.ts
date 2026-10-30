@@ -18,9 +18,11 @@
  * - {@link stateSchema} — the component's internal authoring state, the
  *   thing the pure reducer in `machine.ts` transforms.
  *
- * Only containment (`0 ≤ x, y` and `x + w ≤ 1`, `y + h ≤ 1`) is validated on
- * rects — **not** `w / h == output_aspect`. The wire format does not pin that
- * invariant (the golden vectors carry square rects with `output_aspect: null`;
+ * Rects are validated for shape only — **neither** containment in the image
+ * (keyframes may lie outside it: burns#27; the path-entry UI clamps its own
+ * authoring, `Rect.clamped()` renderers clamp at draw time) **nor**
+ * `w / h == output_aspect`. The wire format does not pin those
+ * invariants (the golden vectors carry square rects with `output_aspect: null`;
  * the output aspect is applied downstream by `coverCropBox`). The path-entry
  * UI happens to lock its rects to the output pixel aspect, but the schema does
  * not require every producer to.
@@ -28,7 +30,7 @@
 
 import { z } from 'zod';
 
-/** Floating-point slack for the containment invariant (matches `rect.ts`). */
+/** Floating-point slack for the UI's containment clamp (matches `rect.ts`). */
 export const EPS = 1e-6;
 
 // --- shared atoms ----------------------------------------------------------
@@ -59,16 +61,6 @@ export const easingSchema = z.union([
   z.tuple([z.number(), z.number(), z.number(), z.number()]),
 ]);
 export type EasingId = z.infer<typeof easingSchema>;
-
-/** True when the rect lies wholly inside the image (within {@link EPS}). */
-function rectContained(r: RectData): boolean {
-  return (
-    r.x >= -EPS &&
-    r.y >= -EPS &&
-    r.x + r.w <= 1 + EPS &&
-    r.y + r.h <= 1 + EPS
-  );
-}
 
 // --- Value (the emitted BurnsPath wire format) -----------------------------
 
@@ -119,15 +111,6 @@ export const valueSchema = z
         });
       }
     }
-    keyframes.forEach((kf, i) => {
-      if (!rectContained(kf.rect)) {
-        ctx.addIssue({
-          code: 'custom',
-          message: `keyframe ${i} rect violates containment (0 ≤ x,y; x+w ≤ 1; y+h ≤ 1)`,
-          path: ['keyframes', i, 'rect'],
-        });
-      }
-    });
   });
 export type Value = z.infer<typeof valueSchema>;
 

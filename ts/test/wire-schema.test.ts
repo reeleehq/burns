@@ -3,7 +3,7 @@
  * from it, and the Python golden vectors must all agree.
  *
  *   - every path in `tests/golden/vectors.json` (authored by Python) validates,
- *     bar the known drift tracked in burns#27;
+ *     including out-of-image rects (containment is a UI authoring constraint, not a wire one: burns#27);
  *   - a one-keyframe path is valid, an empty one is not (burns#19);
  *   - `ts/schemas/*.json` equals what `pnpm schema` would emit now, so editing
  *     the zod source without regenerating fails here instead of drifting.
@@ -24,11 +24,8 @@ const golden = JSON.parse(read('tests', 'golden', 'vectors.json')) as {
 };
 
 describe('wire schema', () => {
-  // clamp_ride_the_wall is out-of-image on purpose; zod rejects it today (burns#27).
-  const KNOWN_DRIFT = new Set(['clamp_ride_the_wall']);
-
   it.each(
-    golden.evaluate.filter((v) => !KNOWN_DRIFT.has(v.name)).map((v) => [v.name, v.path] as const),
+    golden.evaluate.map((v) => [v.name, v.path] as const),
   )(
     'accepts the Python-authored golden path %s',
     (_name, path) => {
