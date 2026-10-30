@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-27T16:30:29Z",
+  "built_at": "2026-10-30T13:24:54Z",
   "package": {
     "name": "burns",
-    "version": "0.0.25",
+    "version": "0.0.26",
     "display_name": "burns",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "d049b43e62a1349f26d1f27d3f51bda5e826eb08",
-    "short_commit": "d049b43",
+    "commit": "c393acb3edfc0935f82ab62d8311087c07cc2184",
+    "short_commit": "c393acb",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/reeleehq/burns",
-    "commit_url": "https://github.com/reeleehq/burns/commit/d049b43e62a1349f26d1f27d3f51bda5e826eb08",
+    "commit_url": "https://github.com/reeleehq/burns/commit/c393acb3edfc0935f82ab62d8311087c07cc2184",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "reeleehq/burns",
-    "sha": "d049b43e62a1349f26d1f27d3f51bda5e826eb08",
+    "sha": "c393acb3edfc0935f82ab62d8311087c07cc2184",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "40539774248",
-    "run_url": "https://github.com/reeleehq/burns/actions/runs/40539774248",
+    "run_id": "41062670189",
+    "run_url": "https://github.com/reeleehq/burns/actions/runs/41062670189",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -60,14 +60,16 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.25",
-    "relation": "same",
+    "latest": "0.0.27",
+    "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/reeleehq/burns && cd burns\ngit checkout d049b43e62a1349f26d1f27d3f51bda5e826eb08\npip install \"epythet==0.2.22\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/reeleehq/burns && cd burns\ngit checkout c393acb3edfc0935f82ab62d8311087c07cc2184\npip install \"epythet==0.2.22\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": true,
-    "notes": []
+    "aligned": false,
+    "notes": [
+      "The documented version (0.0.26) is behind the latest release on PyPI (0.0.27): `pip install burns` gives newer code than these docs describe."
+    ]
   }
 }
