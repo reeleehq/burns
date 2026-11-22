@@ -84,7 +84,9 @@ class RenderBackend(Protocol):
         codec: str,
         audio_codec: str,
         **write_kwargs,
-    ) -> Path: ...
+    ) -> Path:
+        """Encode the move into ``output`` and return its path."""
+        ...
 
 
 def pillow_backend(
