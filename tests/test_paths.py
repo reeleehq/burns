@@ -302,3 +302,25 @@ class TestAxisMaximaIsWindowAspect:
         from burns.content import axis_maxima
 
         assert axis_maxima(1920, 1080, 1920 / 1080) == (1.0, 1.0)
+
+
+def test_ken_burns_focus_none_is_the_index_path():
+    # Pinned values of the index-based path (rounded), so focus=None cannot drift.
+    from burns import ken_burns_path
+
+    end = ken_burns_path(1).evaluate(1.0)
+    assert (round(end.x, 6), round(end.y, 6), round(end.w, 6)) == (0.024255, 0.066655, 0.909091)
+    for i in (1, 2, 3, 4):
+        assert ken_burns_path(i, focus=None) == ken_burns_path(i)
+
+
+def test_ken_burns_focus_aims_the_push():
+    import pytest
+    from burns import ken_burns_path
+
+    p = ken_burns_path(1, focus=(0.25, 0.4), zoom=2.0)
+    assert p.evaluate(0.0).w == 1.0 and p.evaluate(1.0).center == pytest.approx((0.25, 0.4))
+    out = ken_burns_path(2, focus=(0.25, 0.4), zoom=2.0)  # even: pulls out from it
+    assert out.evaluate(0.0).center == pytest.approx((0.25, 0.4))
+    with pytest.raises(ValueError):
+        ken_burns_path(1, focus=(1.5, 0.5))
