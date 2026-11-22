@@ -496,6 +496,7 @@ def resolve_move(
     easing: EasingLike = DFLT_EASING,
     on_aspect_mismatch: str = "raise",
     content_box: FocusLike = None,
+    keep_inside_content_box: bool = False,
 ) -> BurnsPath:
     """Resolve an authored camera intent against ``image`` into a path.
 
@@ -543,6 +544,11 @@ def resolve_move(
             ``(x, y, w, h)`` (same forms as ``focus``). Saliency runs inside it,
             so the blurred fill or bars a caller composited around a still do
             not read as subject. Ignored when ``focus`` is given.
+        keep_inside_content_box: slide every keyframe window of a *named* move
+            inside ``content_box`` (shrinking one that is larger than the box,
+            keeping its shape), so a zoomed move on a pillarboxed card never
+            shows the bars. Needs ``content_box``; off by default, so existing
+            paths are unchanged. An explicit path is returned as authored.
         on_aspect_mismatch: what to do when an explicit path was authored for a
             different ``output_aspect`` than the one being rendered.
             ``"raise"`` (default) refuses, because honouring the stored
@@ -652,8 +658,14 @@ def resolve_move(
     img = as_pil(image)
     img_w, img_h = img.size
     zoom = _checked_zoom(zoom)
+    box = None if content_box is None else _focus_box(content_box, what="content_box")
+    if keep_inside_content_box and box is None:
+        raise MoveError("keep_inside_content_box needs a content_box")
     if focus is not None:
         keep = _focus_box(focus)
+    elif _is_plain_hold(spec, zoom, aspect, img_w / img_h):
+        # A whole-picture hold frames the same whatever is salient: skip saliency.
+        keep = (0.0, 0.0, 1.0, 1.0)
     else:
         keep = _saliency_keep(
             img,
@@ -663,7 +675,7 @@ def resolve_move(
             zoom=zoom,
             aspect=aspect,
         )
-    return spec.build(
+    path = spec.build(
         _Frame(
             img_w=img_w,
             img_h=img_h,
@@ -673,6 +685,39 @@ def resolve_move(
             easing=easing,
         )
     )
+    return _slid_inside(path, box) if keep_inside_content_box else path
+
+
+def _is_plain_hold(spec: "_MoveSpec", zoom: float, aspect, image_aspect: float) -> bool:
+    """A zoom-1 hold whose window is the whole picture: no subject to find."""
+    return (
+        spec.kind == "static"
+        and zoom == 1.0
+        and (aspect is None or math.isclose(aspect, image_aspect, rel_tol=1e-3))
+    )
+
+
+def _slid_inside(path: BurnsPath, box: Box) -> BurnsPath:
+    """``path`` with every keyframe window slid (and, if too big, shrunk) into ``box``.
+
+    >>> from burns import BurnsPath, Rect
+    >>> p = BurnsPath.from_start_end(Rect(0, 0, 1, 1), Rect(0.0, 0.0, 0.6, 0.6))
+    >>> q = _slid_inside(p, (0.2, 0.0, 0.6, 1.0))
+    >>> [tuple(round(v, 3) for v in (r.x, r.y, r.w, r.h)) for _, r in q.keyframes]
+    [(0.2, 0.0, 0.6, 0.6), (0.2, 0.0, 0.6, 0.6)]
+    """
+    from dataclasses import replace
+
+    bx, by, bw, bh = box
+
+    def fit(r: Rect) -> Rect:
+        k = min(1.0, bw / r.w, bh / r.h)
+        w, h = r.w * k, r.h * k
+        x = min(max(r.x, bx), bx + bw - w)
+        y = min(max(r.y, by), by + bh - h)
+        return Rect(x, y, w, h)
+
+    return replace(path, keyframes=tuple((t, fit(r)) for t, r in path.keyframes))
 
 
 def _diffuseness(box: Box) -> float:
