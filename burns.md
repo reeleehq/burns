@@ -1,4 +1,4 @@
-> built 2026-11-22 14:03 UTC from e94fda4 (main) · burns 0.0.28. Details: build_info.json
+> built 2026-11-22 22:51 UTC from 3a0ceaf (main) · burns 0.0.29. Details: build_info.json
 
 # index.html.md
 
@@ -2623,20 +2623,18 @@ Render one image into a pan/zoom video from a `BurnsPath`.
 
 # About this build
 
-This documentation was built on **2026-11-22 14:03 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/e94fda48eb2df0437db6c017d543cbf8d36a8e12"><code>e94fda4</code></a> on branch <code>main</code>, for **burns 0.0.28** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-22 22:51 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/3a0ceaf5ecba65dad6db12246a01017722e6fcdb"><code>3a0ceaf</code></a> on branch <code>main</code>, for **burns 0.0.29** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.28) is behind the latest release on PyPI (0.0.29): `pip install burns` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                       |
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/reeleehq/burns/commit/e94fda48eb2df0437db6c017d543cbf8d36a8e12"><code>e94fda48eb2df0437db6c017d543cbf8d36a8e12</code></a> |
+| Commit              | <a href="https://github.com/reeleehq/burns/commit/3a0ceaf5ecba65dad6db12246a01017722e6fcdb"><code>3a0ceaf5ecba65dad6db12246a01017722e6fcdb</code></a> |
 | Branch              | <code>main</code>                                                                                                                                     |
-| Tags at this commit | <code>0.0.28</code>                                                                                                                                   |
+| Tags at this commit | none                                                                                                                                                  |
 | Working tree        | clean                                                                                                                                                 |
 | Remote              | <code>https://github.com/reeleehq/burns</code>                                                                                                        |
 
@@ -2645,9 +2643,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>reeleehq/burns</code>                                                                |
-| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/45030487925">45030487925</a>       |
+| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/45079732598">45079732598</a>       |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>cacf12393346ac56e812da8ea3bebe3cf610153a</code> (in the history of the built commit) |
+| Event commit | <code>3a0ceaf5ecba65dad6db12246a01017722e6fcdb</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2672,13 +2670,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/burns/0.0.29/">0.0.29</a>, newer than the documented version (0.0.28).
+Latest release: <a href="https://pypi.org/project/burns/0.0.29/">0.0.29</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/reeleehq/burns && cd burns
-git checkout e94fda48eb2df0437db6c017d543cbf8d36a8e12
+git checkout 3a0ceaf5ecba65dad6db12246a01017722e6fcdb
 pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
