@@ -211,7 +211,7 @@ its `width / height`, or its `(width, height)` size.
 
 alias of [`float`](https://docs.python.org/3/builtins/functions.html#float) | [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
 
-### burns.path.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None, image_aspect=None)
+### burns.path.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None, image_aspect=None, focus=None)
 
 A deterministic [`BurnsPath`](#burns.path.BurnsPath) for the `index`-th image of a sequence.
 
@@ -243,6 +243,11 @@ Two styles:
   * **image_aspect** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`None`](https://docs.python.org/3/builtins/constants.html#None)]) – the source’s `width / height`. Pass it whenever
     `output_aspect` is set (see [`BurnsPath.push_in()`](#burns.path.BurnsPath.push_in)); without it
     the source is treated as square.
+  * **focus** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – optional normalised `(cx, cy)` in the image that `"push"`
+    zooms toward (a face, the open side of a landscape) instead of the
+    index’s compass octant; `pan` is then ignored. Odd-in/even-out
+    is unchanged. `None` (default) gives exactly the index-based
+    path. `"drift"` ignores it.
 * **Return type:**
   [`BurnsPath`](#burns.path.BurnsPath)
 * **Returns:**
@@ -257,6 +262,8 @@ Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 >>> ken_burns_path(3) == ken_burns_path(3)  # deterministic
 True
+>>> ken_burns_path(1, focus=(0.25, 0.4), zoom=2.0).evaluate(1.0).center
+(0.25, 0.4)
 ```
 
 ### burns.path.window_aspect(output_aspect, image_aspect=None)

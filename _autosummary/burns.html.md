@@ -543,7 +543,7 @@ generation lazy via one global `make_frame(t)` closure.
 * **Returns:**
   The written mp4 [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path).
 
-### burns.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None, image_aspect=None)
+### burns.ken_burns_path(index, , style='push', zoom=1.1, pan=0.03, easing='ease-in-out', output_aspect=None, image_aspect=None, focus=None)
 
 A deterministic [`BurnsPath`](#burns.BurnsPath) for the `index`-th image of a sequence.
 
@@ -575,6 +575,11 @@ Two styles:
   * **image_aspect** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)], [`None`](https://docs.python.org/3/builtins/constants.html#None)]) – the source’s `width / height`. Pass it whenever
     `output_aspect` is set (see [`BurnsPath.push_in()`](#burns.BurnsPath.push_in)); without it
     the source is treated as square.
+  * **focus** ([`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`float`](https://docs.python.org/3/builtins/functions.html#float), [`float`](https://docs.python.org/3/builtins/functions.html#float)]]) – optional normalised `(cx, cy)` in the image that `"push"`
+    zooms toward (a face, the open side of a landscape) instead of the
+    index’s compass octant; `pan` is then ignored. Odd-in/even-out
+    is unchanged. `None` (default) gives exactly the index-based
+    path. `"drift"` ignores it.
 * **Return type:**
   [`BurnsPath`](burns.path.html.md#burns.path.BurnsPath)
 * **Returns:**
@@ -589,6 +594,8 @@ Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 Rect(x=0.0, y=0.0, w=1.0, h=1.0)
 >>> ken_burns_path(3) == ken_burns_path(3)  # deterministic
 True
+>>> ken_burns_path(1, focus=(0.25, 0.4), zoom=2.0).evaluate(1.0).center
+(0.25, 0.4)
 ```
 
 ### burns.ken_burns_video(image, path=BurnsPath(keyframes=((0.0, Rect(x=0.0, y=0.0, w=1.0, h=1.0)), (1.0, Rect(x=0.11538461538461542, y=0.11538461538461542, w=0.7692307692307692, h=0.7692307692307692))), easing='ease-in-out', interp='linear', output_aspect=None, version=1), , duration=2.0, fps=30, saveas=None, output_size=None, backend='pillow', codec='libx264', audio_codec='aac', \*\*write_kwargs)
@@ -679,7 +686,7 @@ Register a render backend under `name` (open-closed extension point).
 * **Return type:**
   [`None`](https://docs.python.org/3/builtins/constants.html#None)
 
-### burns.resolve_move(move, , image, aspect, zoom=1.18, focus=None, seed=0, easing='ease-in-out', on_aspect_mismatch='raise', content_box=None)
+### burns.resolve_move(move, , image, aspect, zoom=1.18, focus=None, seed=0, easing='ease-in-out', on_aspect_mismatch='raise', content_box=None, keep_inside_content_box=False)
 
 Resolve an authored camera intent against `image` into a path.
 
@@ -728,6 +735,11 @@ Resolve an authored camera intent against `image` into a path.
     `(x, y, w, h)` (same forms as `focus`). Saliency runs inside it,
     so the blurred fill or bars a caller composited around a still do
     not read as subject. Ignored when `focus` is given.
+  * **keep_inside_content_box** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – slide every keyframe window of a *named* move
+    inside `content_box` (shrinking one that is larger than the box,
+    keeping its shape), so a zoomed move on a pillarboxed card never
+    shows the bars. Needs `content_box`; off by default, so existing
+    paths are unchanged. An explicit path is returned as authored.
   * **on_aspect_mismatch** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – what to do when an explicit path was authored for a
     different `output_aspect` than the one being rendered.
     `"raise"` (default) refuses, because honouring the stored

@@ -509,103 +509,117 @@ data-aria-dark="Switch to auto color mode">
 </span><span data-line="361">    <span class="n">easing</span><span class="p">:</span> <span class="n">EasingLike</span> <span class="o">=</span> <span class="n">DFLT_EASING</span><span class="p">,</span>
 </span><span data-line="362">    <span class="n">output_aspect</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span data-line="363">    <span class="n">image_aspect</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ImageAspect</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span data-line="364"><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BurnsPath</span><span class="p">:</span>
-</span><span data-line="365"><span class="w">    </span><span class="sd">"""A deterministic :class:`BurnsPath` for the ``index``-th image of a sequence.</span>
-</span><span data-line="366">
-</span><span data-line="367"><span class="sd">    Maps intent to geometry so a sequence of images gets cohesive, non-repetitive</span>
-</span><span data-line="368"><span class="sd">    motion without hand-authoring rectangles. Per-index deterministic: identical</span>
-</span><span data-line="369"><span class="sd">    args always return an identical path. Duration is *not* part of the path — it</span>
-</span><span data-line="370"><span class="sd">    is a render-time parameter (pass it to :func:`burns.ken_burns_video` /</span>
-</span><span data-line="371"><span class="sd">    :func:`burns.ken_burns_film`).</span>
-</span><span data-line="372">
-</span><span data-line="373"><span class="sd">    Two styles:</span>
-</span><span data-line="374">
-</span><span data-line="375"><span class="sd">    - ``style="push"`` (default) — the "cinematic push": one slow zoom toward an</span>
-</span><span data-line="376"><span class="sd">      off-center focal point. **Odd indices push in, even indices pull out**, so a</span>
-</span><span data-line="377"><span class="sd">      sequence has visual rhythm without changing direction *within* a shot. The</span>
-</span><span data-line="378"><span class="sd">      focal direction rotates through compass octants per index.</span>
-</span><span data-line="379"><span class="sd">    - ``style="drift"`` — pure horizontal pan at a constant zoom, alternating</span>
-</span><span data-line="380"><span class="sd">      direction per index (odd drifts right, even left). ``zoom`` is ignored;</span>
-</span><span data-line="381"><span class="sd">      drift derives its own zoom from ``pan`` so the slide is visible.</span>
-</span><span data-line="382">
-</span><span data-line="383"><span class="sd">    Args:</span>
-</span><span data-line="384"><span class="sd">        index: the image's 1-based position in the sequence.</span>
-</span><span data-line="385"><span class="sd">        style: ``"push"`` (default) or ``"drift"``.</span>
-</span><span data-line="386"><span class="sd">        zoom: the zoomed-end magnification (&gt; 1.0) for ``"push"``.</span>
-</span><span data-line="387"><span class="sd">        pan: focal-point offset (``"push"``) or total horizontal travel</span>
-</span><span data-line="388"><span class="sd">            (``"drift"``), in ``[0, 1]`` image units.</span>
-</span><span data-line="389"><span class="sd">        easing: CSS timing function or callable. Default ``"ease-in-out"`` — the</span>
-</span><span data-line="390"><span class="sd">            cinematic slow-in/slow-out. Pass ``"linear"`` for constant velocity.</span>
-</span><span data-line="391"><span class="sd">        output_aspect: aspect ratio the render should fill (``None`` = match image).</span>
-</span><span data-line="392"><span class="sd">        image_aspect: the source's ``width / height``. Pass it whenever</span>
-</span><span data-line="393"><span class="sd">            ``output_aspect`` is set (see :meth:`BurnsPath.push_in`); without it</span>
-</span><span data-line="394"><span class="sd">            the source is treated as square.</span>
-</span><span data-line="395">
-</span><span data-line="396"><span class="sd">    Returns:</span>
-</span><span data-line="397"><span class="sd">        A :class:`BurnsPath` (two keyframes — Start and End).</span>
-</span><span data-line="398">
-</span><span data-line="399"><span class="sd">    Examples:</span>
-</span><span data-line="400"><span class="sd">        &gt;&gt;&gt; ken_burns_path(1).evaluate(0.0)  # odd: push in, starts full</span>
-</span><span data-line="401"><span class="sd">        Rect(x=0.0, y=0.0, w=1.0, h=1.0)</span>
-</span><span data-line="402"><span class="sd">        &gt;&gt;&gt; ken_burns_path(2).evaluate(1.0)  # even: pull out, ends full</span>
-</span><span data-line="403"><span class="sd">        Rect(x=0.0, y=0.0, w=1.0, h=1.0)</span>
-</span><span data-line="404"><span class="sd">        &gt;&gt;&gt; ken_burns_path(3) == ken_burns_path(3)  # deterministic</span>
-</span><span data-line="405"><span class="sd">        True</span>
-</span><span data-line="406"><span class="sd">    """</span>
-</span><span data-line="407">    <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_VALID_STYLES</span><span class="p">:</span>
-</span><span data-line="408">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span data-line="409">            <span class="sa">f</span><span class="s2">"ken_burns_path: style must be one of </span><span class="si">{</span><span class="n">_VALID_STYLES</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">style</span><span class="si">!r}</span><span class="s2">"</span>
-</span><span data-line="410">        <span class="p">)</span>
-</span><span data-line="411">    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">_endpoints_for_style</span><span class="p">(</span>
-</span><span data-line="412">        <span class="n">style</span><span class="p">,</span>
-</span><span data-line="413">        <span class="n">index</span><span class="p">,</span>
-</span><span data-line="414">        <span class="n">zoom</span><span class="o">=</span><span class="n">zoom</span><span class="p">,</span>
-</span><span data-line="415">        <span class="n">pan</span><span class="o">=</span><span class="n">pan</span><span class="p">,</span>
-</span><span data-line="416">        <span class="n">aspect</span><span class="o">=</span><span class="n">window_aspect</span><span class="p">(</span><span class="n">output_aspect</span><span class="p">,</span> <span class="n">image_aspect</span><span class="p">),</span>
-</span><span data-line="417">    <span class="p">)</span>
-</span><span data-line="418">    <span class="k">return</span> <span class="n">BurnsPath</span><span class="o">.</span><span class="n">from_start_end</span><span class="p">(</span>
-</span><span data-line="419">        <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">easing</span><span class="o">=</span><span class="n">easing</span><span class="p">,</span> <span class="n">output_aspect</span><span class="o">=</span><span class="n">output_aspect</span>
-</span><span data-line="420">    <span class="p">)</span></div>
+</span><span data-line="364">    <span class="n">focus</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span data-line="365"><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BurnsPath</span><span class="p">:</span>
+</span><span data-line="366"><span class="w">    </span><span class="sd">"""A deterministic :class:`BurnsPath` for the ``index``-th image of a sequence.</span>
+</span><span data-line="367">
+</span><span data-line="368"><span class="sd">    Maps intent to geometry so a sequence of images gets cohesive, non-repetitive</span>
+</span><span data-line="369"><span class="sd">    motion without hand-authoring rectangles. Per-index deterministic: identical</span>
+</span><span data-line="370"><span class="sd">    args always return an identical path. Duration is *not* part of the path — it</span>
+</span><span data-line="371"><span class="sd">    is a render-time parameter (pass it to :func:`burns.ken_burns_video` /</span>
+</span><span data-line="372"><span class="sd">    :func:`burns.ken_burns_film`).</span>
+</span><span data-line="373">
+</span><span data-line="374"><span class="sd">    Two styles:</span>
+</span><span data-line="375">
+</span><span data-line="376"><span class="sd">    - ``style="push"`` (default) — the "cinematic push": one slow zoom toward an</span>
+</span><span data-line="377"><span class="sd">      off-center focal point. **Odd indices push in, even indices pull out**, so a</span>
+</span><span data-line="378"><span class="sd">      sequence has visual rhythm without changing direction *within* a shot. The</span>
+</span><span data-line="379"><span class="sd">      focal direction rotates through compass octants per index.</span>
+</span><span data-line="380"><span class="sd">    - ``style="drift"`` — pure horizontal pan at a constant zoom, alternating</span>
+</span><span data-line="381"><span class="sd">      direction per index (odd drifts right, even left). ``zoom`` is ignored;</span>
+</span><span data-line="382"><span class="sd">      drift derives its own zoom from ``pan`` so the slide is visible.</span>
+</span><span data-line="383">
+</span><span data-line="384"><span class="sd">    Args:</span>
+</span><span data-line="385"><span class="sd">        index: the image's 1-based position in the sequence.</span>
+</span><span data-line="386"><span class="sd">        style: ``"push"`` (default) or ``"drift"``.</span>
+</span><span data-line="387"><span class="sd">        zoom: the zoomed-end magnification (&gt; 1.0) for ``"push"``.</span>
+</span><span data-line="388"><span class="sd">        pan: focal-point offset (``"push"``) or total horizontal travel</span>
+</span><span data-line="389"><span class="sd">            (``"drift"``), in ``[0, 1]`` image units.</span>
+</span><span data-line="390"><span class="sd">        easing: CSS timing function or callable. Default ``"ease-in-out"`` — the</span>
+</span><span data-line="391"><span class="sd">            cinematic slow-in/slow-out. Pass ``"linear"`` for constant velocity.</span>
+</span><span data-line="392"><span class="sd">        output_aspect: aspect ratio the render should fill (``None`` = match image).</span>
+</span><span data-line="393"><span class="sd">        image_aspect: the source's ``width / height``. Pass it whenever</span>
+</span><span data-line="394"><span class="sd">            ``output_aspect`` is set (see :meth:`BurnsPath.push_in`); without it</span>
+</span><span data-line="395"><span class="sd">            the source is treated as square.</span>
+</span><span data-line="396"><span class="sd">        focus: optional normalised ``(cx, cy)`` in the image that ``"push"``</span>
+</span><span data-line="397"><span class="sd">            zooms toward (a face, the open side of a landscape) instead of the</span>
+</span><span data-line="398"><span class="sd">            index's compass octant; ``pan`` is then ignored. Odd-in/even-out</span>
+</span><span data-line="399"><span class="sd">            is unchanged. ``None`` (default) gives exactly the index-based</span>
+</span><span data-line="400"><span class="sd">            path. ``"drift"`` ignores it.</span>
+</span><span data-line="401">
+</span><span data-line="402"><span class="sd">    Returns:</span>
+</span><span data-line="403"><span class="sd">        A :class:`BurnsPath` (two keyframes — Start and End).</span>
+</span><span data-line="404">
+</span><span data-line="405"><span class="sd">    Examples:</span>
+</span><span data-line="406"><span class="sd">        &gt;&gt;&gt; ken_burns_path(1).evaluate(0.0)  # odd: push in, starts full</span>
+</span><span data-line="407"><span class="sd">        Rect(x=0.0, y=0.0, w=1.0, h=1.0)</span>
+</span><span data-line="408"><span class="sd">        &gt;&gt;&gt; ken_burns_path(2).evaluate(1.0)  # even: pull out, ends full</span>
+</span><span data-line="409"><span class="sd">        Rect(x=0.0, y=0.0, w=1.0, h=1.0)</span>
+</span><span data-line="410"><span class="sd">        &gt;&gt;&gt; ken_burns_path(3) == ken_burns_path(3)  # deterministic</span>
+</span><span data-line="411"><span class="sd">        True</span>
+</span><span data-line="412"><span class="sd">        &gt;&gt;&gt; ken_burns_path(1, focus=(0.25, 0.4), zoom=2.0).evaluate(1.0).center</span>
+</span><span data-line="413"><span class="sd">        (0.25, 0.4)</span>
+</span><span data-line="414"><span class="sd">    """</span>
+</span><span data-line="415">    <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_VALID_STYLES</span><span class="p">:</span>
+</span><span data-line="416">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span data-line="417">            <span class="sa">f</span><span class="s2">"ken_burns_path: style must be one of </span><span class="si">{</span><span class="n">_VALID_STYLES</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">style</span><span class="si">!r}</span><span class="s2">"</span>
+</span><span data-line="418">        <span class="p">)</span>
+</span><span data-line="419">    <span class="k">if</span> <span class="n">focus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mf">1.0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">focus</span><span class="p">):</span>
+</span><span data-line="420">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ken_burns_path: focus must be within [0, 1], got </span><span class="si">{</span><span class="n">focus</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+</span><span data-line="421">    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">_endpoints_for_style</span><span class="p">(</span>
+</span><span data-line="422">        <span class="n">style</span><span class="p">,</span>
+</span><span data-line="423">        <span class="n">index</span><span class="p">,</span>
+</span><span data-line="424">        <span class="n">zoom</span><span class="o">=</span><span class="n">zoom</span><span class="p">,</span>
+</span><span data-line="425">        <span class="n">pan</span><span class="o">=</span><span class="n">pan</span><span class="p">,</span>
+</span><span data-line="426">        <span class="n">aspect</span><span class="o">=</span><span class="n">window_aspect</span><span class="p">(</span><span class="n">output_aspect</span><span class="p">,</span> <span class="n">image_aspect</span><span class="p">),</span>
+</span><span data-line="427">        <span class="n">focus</span><span class="o">=</span><span class="n">focus</span><span class="p">,</span>
+</span><span data-line="428">    <span class="p">)</span>
+</span><span data-line="429">    <span class="k">return</span> <span class="n">BurnsPath</span><span class="o">.</span><span class="n">from_start_end</span><span class="p">(</span>
+</span><span data-line="430">        <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">easing</span><span class="o">=</span><span class="n">easing</span><span class="p">,</span> <span class="n">output_aspect</span><span class="o">=</span><span class="n">output_aspect</span>
+</span><span data-line="431">    <span class="p">)</span></div>
 
-</span><span data-line="421">
-</span><span data-line="422">
-</span><span data-line="423"><span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_for_style</span><span class="p">(</span>
-</span><span data-line="424">    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span data-line="425">    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span data-line="426">    <span class="o">*</span><span class="p">,</span>
-</span><span data-line="427">    <span class="n">zoom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-</span><span data-line="428">    <span class="n">pan</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-</span><span data-line="429">    <span class="n">aspect</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-</span><span data-line="430"><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Rect</span><span class="p">,</span> <span class="n">Rect</span><span class="p">]:</span>
-</span><span data-line="431"><span class="w">    </span><span class="sd">"""The ``(start_rect, end_rect)`` for one image under one style.</span>
 </span><span data-line="432">
-</span><span data-line="433"><span class="sd">    ``aspect`` is the window's image-normalised ``w / h`` (:func:`window_aspect`).</span>
-</span><span data-line="434"><span class="sd">    """</span>
-</span><span data-line="435">    <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">"push"</span><span class="p">:</span>
-</span><span data-line="436">        <span class="c1"># Focal direction cycles through compass octants per index.</span>
-</span><span data-line="437">        <span class="n">angle</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
-</span><span data-line="438">        <span class="n">off_cx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">pan</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
-</span><span data-line="439">        <span class="n">off_cy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">pan</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
-</span><span data-line="440">        <span class="n">full</span> <span class="o">=</span> <span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">)</span>
-</span><span data-line="441">        <span class="n">offset</span> <span class="o">=</span> <span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="n">off_cx</span><span class="p">,</span> <span class="n">off_cy</span><span class="p">,</span> <span class="n">zoom</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">)</span>
-</span><span data-line="442">        <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span data-line="443">            <span class="k">return</span> <span class="n">full</span><span class="p">,</span> <span class="n">offset</span>  <span class="c1"># push in</span>
-</span><span data-line="444">        <span class="k">return</span> <span class="n">offset</span><span class="p">,</span> <span class="n">full</span>  <span class="c1"># pull out</span>
-</span><span data-line="445">
-</span><span data-line="446">    <span class="c1"># style == "drift": horizontal pan at a constant zoom.</span>
-</span><span data-line="447">    <span class="n">direction</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
-</span><span data-line="448">    <span class="n">half</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pan</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">)</span>  <span class="c1"># pan must stay &lt; 0.5</span>
-</span><span data-line="449">    <span class="n">start_cx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">half</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-</span><span data-line="450">    <span class="n">end_cx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">half</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-</span><span data-line="451">    <span class="c1"># Smallest zoom whose window can reach 0.5 ± half, plus headroom so the</span>
-</span><span data-line="452">    <span class="c1"># slide reads as motion rather than riding the edges.</span>
-</span><span data-line="453">    <span class="c1"># A window narrower than the frame (aspect &lt; 1) already spans only</span>
-</span><span data-line="454">    <span class="c1"># ``aspect`` of the width at zoom 1.0, so it needs correspondingly less.</span>
-</span><span data-line="455">    <span class="n">drift_zoom</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">aspect</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">half</span><span class="p">))</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-</span><span data-line="456">    <span class="k">return</span> <span class="p">(</span>
-</span><span data-line="457">        <span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="n">start_cx</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">drift_zoom</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">),</span>
-</span><span data-line="458">        <span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="n">end_cx</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">drift_zoom</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">),</span>
-</span><span data-line="459">    <span class="p">)</span>
+</span><span data-line="433">
+</span><span data-line="434"><span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_for_style</span><span class="p">(</span>
+</span><span data-line="435">    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span data-line="436">    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span data-line="437">    <span class="o">*</span><span class="p">,</span>
+</span><span data-line="438">    <span class="n">zoom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span data-line="439">    <span class="n">pan</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span data-line="440">    <span class="n">aspect</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span data-line="441">    <span class="n">focus</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span data-line="442"><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Rect</span><span class="p">,</span> <span class="n">Rect</span><span class="p">]:</span>
+</span><span data-line="443"><span class="w">    </span><span class="sd">"""The ``(start_rect, end_rect)`` for one image under one style.</span>
+</span><span data-line="444">
+</span><span data-line="445"><span class="sd">    ``aspect`` is the window's image-normalised ``w / h`` (:func:`window_aspect`).</span>
+</span><span data-line="446"><span class="sd">    """</span>
+</span><span data-line="447">    <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">"push"</span><span class="p">:</span>
+</span><span data-line="448">        <span class="c1"># Focal direction cycles through compass octants per index.</span>
+</span><span data-line="449">        <span class="n">angle</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+</span><span data-line="450">        <span class="n">off_cx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">pan</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+</span><span data-line="451">        <span class="n">off_cy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">pan</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+</span><span data-line="452">        <span class="k">if</span> <span class="n">focus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span data-line="453">            <span class="n">off_cx</span><span class="p">,</span> <span class="n">off_cy</span> <span class="o">=</span> <span class="n">focus</span>
+</span><span data-line="454">        <span class="n">full</span> <span class="o">=</span> <span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">)</span>
+</span><span data-line="455">        <span class="n">offset</span> <span class="o">=</span> <span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="n">off_cx</span><span class="p">,</span> <span class="n">off_cy</span><span class="p">,</span> <span class="n">zoom</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">)</span>
+</span><span data-line="456">        <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span><span data-line="457">            <span class="k">return</span> <span class="n">full</span><span class="p">,</span> <span class="n">offset</span>  <span class="c1"># push in</span>
+</span><span data-line="458">        <span class="k">return</span> <span class="n">offset</span><span class="p">,</span> <span class="n">full</span>  <span class="c1"># pull out</span>
+</span><span data-line="459">
+</span><span data-line="460">    <span class="c1"># style == "drift": horizontal pan at a constant zoom.</span>
+</span><span data-line="461">    <span class="n">direction</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+</span><span data-line="462">    <span class="n">half</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pan</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">)</span>  <span class="c1"># pan must stay &lt; 0.5</span>
+</span><span data-line="463">    <span class="n">start_cx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">half</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</span><span data-line="464">    <span class="n">end_cx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">half</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</span><span data-line="465">    <span class="c1"># Smallest zoom whose window can reach 0.5 ± half, plus headroom so the</span>
+</span><span data-line="466">    <span class="c1"># slide reads as motion rather than riding the edges.</span>
+</span><span data-line="467">    <span class="c1"># A window narrower than the frame (aspect &lt; 1) already spans only</span>
+</span><span data-line="468">    <span class="c1"># ``aspect`` of the width at zoom 1.0, so it needs correspondingly less.</span>
+</span><span data-line="469">    <span class="n">drift_zoom</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">aspect</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">half</span><span class="p">))</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</span><span data-line="470">    <span class="k">return</span> <span class="p">(</span>
+</span><span data-line="471">        <span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="n">start_cx</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">drift_zoom</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">),</span>
+</span><span data-line="472">        <span class="n">Rect</span><span class="o">.</span><span class="n">from_center_zoom</span><span class="p">(</span><span class="n">end_cx</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">drift_zoom</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">),</span>
+</span><span data-line="473">    <span class="p">)</span>
 </span></pre></div>
         </article><button class="back-to-top" type="button">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -633,7 +647,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="../../_static/documentation_options.js?v=6a9d8632"></script>
+      <script src="../../_static/documentation_options.js?v=cee5022b"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

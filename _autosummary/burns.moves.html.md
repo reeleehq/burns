@@ -242,7 +242,7 @@ off the same table [`resolve_move()`](#burns.moves.resolve_move) dispatches on.
 * **Return type:**
   [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
-### burns.moves.resolve_move(move, , image, aspect, zoom=1.18, focus=None, seed=0, easing='ease-in-out', on_aspect_mismatch='raise', content_box=None)
+### burns.moves.resolve_move(move, , image, aspect, zoom=1.18, focus=None, seed=0, easing='ease-in-out', on_aspect_mismatch='raise', content_box=None, keep_inside_content_box=False)
 
 Resolve an authored camera intent against `image` into a path.
 
@@ -291,6 +291,11 @@ Resolve an authored camera intent against `image` into a path.
     `(x, y, w, h)` (same forms as `focus`). Saliency runs inside it,
     so the blurred fill or bars a caller composited around a still do
     not read as subject. Ignored when `focus` is given.
+  * **keep_inside_content_box** ([`bool`](https://docs.python.org/3/builtins/functions.html#bool)) – slide every keyframe window of a *named* move
+    inside `content_box` (shrinking one that is larger than the box,
+    keeping its shape), so a zoomed move on a pillarboxed card never
+    shows the bars. Needs `content_box`; off by default, so existing
+    paths are unchanged. An explicit path is returned as authored.
   * **on_aspect_mismatch** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – what to do when an explicit path was authored for a
     different `output_aspect` than the one being rendered.
     `"raise"` (default) refuses, because honouring the stored
