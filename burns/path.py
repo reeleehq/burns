@@ -361,6 +361,7 @@ def ken_burns_path(
     easing: EasingLike = DFLT_EASING,
     output_aspect: Union[float, None] = None,
     image_aspect: Union[ImageAspect, None] = None,
+    focus: Union[tuple[float, float], None] = None,
 ) -> BurnsPath:
     """A deterministic :class:`BurnsPath` for the ``index``-th image of a sequence.
 
@@ -392,6 +393,11 @@ def ken_burns_path(
         image_aspect: the source's ``width / height``. Pass it whenever
             ``output_aspect`` is set (see :meth:`BurnsPath.push_in`); without it
             the source is treated as square.
+        focus: optional normalised ``(cx, cy)`` in the image that ``"push"``
+            zooms toward (a face, the open side of a landscape) instead of the
+            index's compass octant; ``pan`` is then ignored. Odd-in/even-out
+            is unchanged. ``None`` (default) gives exactly the index-based
+            path. ``"drift"`` ignores it.
 
     Returns:
         A :class:`BurnsPath` (two keyframes — Start and End).
@@ -403,17 +409,22 @@ def ken_burns_path(
         Rect(x=0.0, y=0.0, w=1.0, h=1.0)
         >>> ken_burns_path(3) == ken_burns_path(3)  # deterministic
         True
+        >>> ken_burns_path(1, focus=(0.25, 0.4), zoom=2.0).evaluate(1.0).center
+        (0.25, 0.4)
     """
     if style not in _VALID_STYLES:
         raise ValueError(
             f"ken_burns_path: style must be one of {_VALID_STYLES}, got {style!r}"
         )
+    if focus is not None and not all(0.0 <= v <= 1.0 for v in focus):
+        raise ValueError(f"ken_burns_path: focus must be within [0, 1], got {focus!r}")
     start, end = _endpoints_for_style(
         style,
         index,
         zoom=zoom,
         pan=pan,
         aspect=window_aspect(output_aspect, image_aspect),
+        focus=focus,
     )
     return BurnsPath.from_start_end(
         start, end, easing=easing, output_aspect=output_aspect
@@ -427,6 +438,7 @@ def _endpoints_for_style(
     zoom: float,
     pan: float,
     aspect: float,
+    focus: Union[tuple[float, float], None] = None,
 ) -> tuple[Rect, Rect]:
     """The ``(start_rect, end_rect)`` for one image under one style.
 
@@ -437,6 +449,8 @@ def _endpoints_for_style(
         angle = (index * 2 + 1) * (math.pi / 4)
         off_cx = round(0.5 + pan * math.cos(angle), 4)
         off_cy = round(0.5 + pan * math.sin(angle), 4)
+        if focus is not None:
+            off_cx, off_cy = focus
         full = Rect.from_center_zoom(0.5, 0.5, 1.0, aspect=aspect)
         offset = Rect.from_center_zoom(off_cx, off_cy, zoom, aspect=aspect)
         if index % 2 == 1:
