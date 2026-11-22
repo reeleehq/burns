@@ -1122,3 +1122,40 @@ class TestDiffuseIsNotASubject:
             )
         with pytest.raises(MoveError, match="content_box must lie inside"):
             resolve_move("push_in", image=img, aspect=16 / 9, content_box=(0, 0, 2, 1))
+
+
+def test_keep_inside_content_box_never_shows_the_bars():
+    import numpy as np
+    from burns import resolve_move
+
+    img = np.zeros((600, 800, 3), dtype="uint8")
+    img[:, 200:600] = 200  # a pillarboxed card
+    box = (0.25, 0.0, 0.5, 1.0)
+    for name in ("push_in", "pull_out", "drift_left", "drift_right", "hold"):
+        path = resolve_move(name, image=img, aspect=None, content_box=box,
+                            keep_inside_content_box=True)
+        for _, r in path.keyframes:
+            assert r.x >= 0.25 - 1e-9 and r.x + r.w <= 0.75 + 1e-9
+
+
+def test_keep_inside_needs_a_content_box():
+    import numpy as np
+    import pytest
+    from burns import resolve_move
+    from burns.moves import MoveError
+
+    with pytest.raises(MoveError):
+        resolve_move("hold", image=np.zeros((60, 80, 3), "uint8"), aspect=None,
+                     keep_inside_content_box=True)
+
+
+def test_plain_hold_skips_saliency(monkeypatch):
+    import numpy as np
+    import burns.moves as m
+
+    def boom(*a, **k):
+        raise AssertionError("saliency ran")
+
+    monkeypatch.setattr(m, "_saliency_keep", boom)
+    p = m.resolve_move("hold", image=np.zeros((60, 80, 3), "uint8"), aspect=None, zoom=1.0)
+    assert p.evaluate(0.0).w == 1.0
