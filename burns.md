@@ -1,4 +1,4 @@
-> built 2026-11-23 06:45 UTC from 23e93e2 (main) · burns 0.0.29. Details: build_info.json
+> built 2026-11-23 06:49 UTC from 035bdb5 (main) · burns 0.0.30. Details: build_info.json
 
 # index.html.md
 
@@ -6,7 +6,7 @@
 
 # burns
 
-Ken Burns pan/zoom video effects: turn a still image — or a sequence of stills — into a cinematic pan/zoom film.
+Ken Burns pan/zoom video effects: turn a still image — or a sequence of stills — into a pan/zoom film.
 
 The [Ken Burns effect](https://en.wikipedia.org/wiki/Ken_Burns_effect) animates a static photograph by slowly panning across it and zooming in or out, giving still images a sense of motion. `burns` does exactly that, with a tiny API and no configuration required — and a clean, render-agnostic motion spec underneath so the same path drives the Python renderer here and the TypeScript one in `ts/`.
 
@@ -14,7 +14,7 @@ The [Ken Burns effect](https://en.wikipedia.org/wiki/Ken_Burns_effect) animates 
 pip install burns
 ```
 
-No system `ffmpeg` is required: `moviepy` brings its own through `imageio-ffmpeg`, and both render backends use that binary by default. (An earlier version of this paragraph said otherwise; it was never true.)
+No system `ffmpeg` is required: `moviepy` brings its own through `imageio-ffmpeg`, and both render backends use that binary by default.
 
 ## Demo
 
@@ -2542,16 +2542,18 @@ Render one image into a pan/zoom video from a `BurnsPath`.
 
 # About this build
 
-This documentation was built on **2026-11-23 06:45 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/23e93e2adcdbb282986ba44a48089576741361ec"><code>23e93e2</code></a> on branch <code>main</code>, for **burns 0.0.29** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-23 06:49 UTC** from commit <a href="https://github.com/reeleehq/burns/commit/035bdb5f62334c7f50013e3cd8efe7f9f3d536c6"><code>035bdb5</code></a> on branch <code>main</code>, for **burns 0.0.30** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.0.30) is behind the latest release on PyPI (0.0.31): `pip install burns` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                       |
 |---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/reeleehq/burns/commit/23e93e2adcdbb282986ba44a48089576741361ec"><code>23e93e2adcdbb282986ba44a48089576741361ec</code></a> |
+| Commit              | <a href="https://github.com/reeleehq/burns/commit/035bdb5f62334c7f50013e3cd8efe7f9f3d536c6"><code>035bdb5f62334c7f50013e3cd8efe7f9f3d536c6</code></a> |
 | Branch              | <code>main</code>                                                                                                                                     |
 | Tags at this commit | none                                                                                                                                                  |
 | Working tree        | clean                                                                                                                                                 |
@@ -2562,9 +2564,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>reeleehq/burns</code>                                                                |
-| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/45125942924">45125942924</a>       |
+| Run          | <a href="https://github.com/reeleehq/burns/actions/runs/45126395764">45126395764</a>       |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>23e93e2adcdbb282986ba44a48089576741361ec</code> (in the history of the built commit) |
+| Event commit | <code>035bdb5f62334c7f50013e3cd8efe7f9f3d536c6</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2589,13 +2591,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/burns/0.0.29/">0.0.29</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/burns/0.0.31/">0.0.31</a>, newer than the documented version (0.0.30).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/reeleehq/burns && cd burns
-git checkout 23e93e2adcdbb282986ba44a48089576741361ec
+git checkout 035bdb5f62334c7f50013e3cd8efe7f9f3d536c6
 pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
