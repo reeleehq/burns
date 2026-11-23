@@ -1,6 +1,6 @@
 # burns
 
-Ken Burns pan/zoom video effects: turn a still image — or a sequence of stills — into a cinematic pan/zoom film.
+Ken Burns pan/zoom video effects: turn a still image — or a sequence of stills — into a pan/zoom film.
 
 The [Ken Burns effect](https://en.wikipedia.org/wiki/Ken_Burns_effect) animates a static photograph by slowly panning across it and zooming in or out, giving still images a sense of motion. `burns` does exactly that, with a tiny API and no configuration required — and a clean, render-agnostic motion spec underneath so the same path drives the Python renderer here and the TypeScript one in `ts/`.
 
@@ -8,7 +8,7 @@ The [Ken Burns effect](https://en.wikipedia.org/wiki/Ken_Burns_effect) animates 
 pip install burns
 ```
 
-No system `ffmpeg` is required: `moviepy` brings its own through `imageio-ffmpeg`, and both render backends use that binary by default. (An earlier version of this paragraph said otherwise; it was never true.)
+No system `ffmpeg` is required: `moviepy` brings its own through `imageio-ffmpeg`, and both render backends use that binary by default.
 
 ## Demo
 
