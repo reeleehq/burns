@@ -2,42 +2,15 @@
 
 # burns
 
-Ken Burns pan/zoom video effects: turn a still image — or a sequence of stills —
-into a cinematic pan/zoom film.
+Ken Burns pan/zoom video effects: turn a still image — or a sequence of stills — into a cinematic pan/zoom film.
 
-The [Ken Burns effect](https://en.wikipedia.org/wiki/Ken_Burns_effect) animates a
-static photograph by slowly panning across it and zooming in or out, giving still
-images a sense of motion. `burns` does exactly that, with a tiny API and no
-configuration required — and a clean, render-agnostic motion spec underneath so
-the same path drives the Python renderer here and the TypeScript one in `ts/`.
+The [Ken Burns effect](https://en.wikipedia.org/wiki/Ken_Burns_effect) animates a static photograph by slowly panning across it and zooming in or out, giving still images a sense of motion. `burns` does exactly that, with a tiny API and no configuration required — and a clean, render-agnostic motion spec underneath so the same path drives the Python renderer here and the TypeScript one in `ts/`.
 
 ```bash
 pip install burns
 ```
 
-No system `ffmpeg` is required: `moviepy` brings its own through `imageio-ffmpeg`,
-and both render backends use that binary by default. (An earlier version of this
-paragraph said otherwise; it was never true.)
-
-## Two render backends
-
-`ken_burns_video(..., backend=...)` picks how the frames are made:
-
-| backend                 | how                                                                                                                          | when                                                                  |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| `"pillow"`  *(default)* | one `moviepy` frame at a time, resampled in Python                                                                           | the quality default, and the only one with no constraints on the path |
-| `"ffmpeg"`              | one process: the path is compiled to a filter graph by [`looks`](https://github.com/thorwhalen/looks) and handed to `ffmpeg` | when you want a single decode/encode instead of per-frame Python      |
-
-The split follows the rule the two packages share: **`burns` owns the authored
-geometry, `looks` owns compiling it, and `burns` runs the argv.** `looks` never
-starts a process that produces media — that is its own invariant.
-
-The two are **not pixel-identical**: measured ~52 dB apart on a smooth image and
-~34 dB on hard edges, dominated by resampler choice (Pillow’s bicubic against
-ffmpeg’s scaler) rather than by framing. `pillow` stays the default so switching
-is a decision rather than a surprise, and the ffmpeg path refuses — naming
-`backend="pillow"` — any path it cannot express, rather than rendering
-something else.
+No system `ffmpeg` is required: `moviepy` brings its own through `imageio-ffmpeg`, and both render backends use that binary by default. (An earlier version of this paragraph said otherwise; it was never true.)
 
 ## Demo
 
@@ -45,9 +18,9 @@ Starting from a single still image:
 
 ![input still image](https://raw.githubusercontent.com/thorwhalen/burns/main/assets/demo_landscape.jpg)
 
-…two lines of code turn it into two different Ken Burns films — a slow zoom-in
-(“push”) and a lateral pan (“drift”):
+…two lines of code turn it into two different Ken Burns films — a slow zoom-in (“push”) and a lateral pan (“drift”):
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 from burns import ken_burns_video, ken_burns_path
 
@@ -63,13 +36,13 @@ ken_burns_video(
 |---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | ![push](https://raw.githubusercontent.com/thorwhalen/burns/main/assets/demo_push.gif) | ![drift](https://raw.githubusercontent.com/thorwhalen/burns/main/assets/demo_drift.gif) |
 
-The full script that generated this still and these GIFs is
-[`misc/generate_demo.py`]().
+The full script that generated this still and these GIFs is [`misc/generate_demo.py`]().
 
 ## Quickstart
 
 A standard 2-second push-in, written next to the source image:
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 from burns import ken_burns_video
 
@@ -78,16 +51,26 @@ ken_burns_video("photo.jpg")  # → photo_kenburns.mp4
 
 That’s it. The result is an mp4 that slowly zooms into the center of `photo.jpg`.
 
+## Render backends
+
+`ken_burns_video(..., backend=...)` picks how the frames are made:
+
+| backend                 | how                                                                                                                          | when                                                                  |
+|-------------------------|------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| `"pillow"`  *(default)* | one `moviepy` frame at a time, resampled in Python                                                                           | the quality default, and the only one with no constraints on the path |
+| `"ffmpeg"`              | one process: the path is compiled to a filter graph by [`looks`](https://github.com/thorwhalen/looks) and handed to `ffmpeg` | when you want a single decode/encode instead of per-frame Python      |
+
+The split follows the rule the two packages share: **`burns` owns the authored geometry, `looks` owns compiling it, and `burns` runs the argv.** `looks` never starts a process that produces media — that is its own invariant.
+
+The two are **not pixel-identical**: measured ~52 dB apart on a smooth image and ~34 dB on hard edges, dominated by resampler choice (Pillow’s bicubic against ffmpeg’s scaler) rather than by framing. `pillow` stays the default so switching is a decision rather than a surprise, and the ffmpeg path refuses — naming `backend="pillow"` — any path it cannot express, rather than rendering something else.
+
 ## The motion spec: `BurnsPath`
 
-The camera motion is a `BurnsPath` — a pure, time-parameterized spec. Its core is
-`evaluate(t) -> Rect` for `t ∈ [0, 1]`: where the viewport is at each instant,
-independent of any renderer, frame rate, or duration.
+The camera motion is a `BurnsPath` — a pure, time-parameterized spec. Its core is `evaluate(t) -> Rect` for `t ∈ [0, 1]`: where the viewport is at each instant, independent of any renderer, frame rate, or duration.
 
-A *rect* is `Rect(x, y, w, h)` — a normalized window over the image, top-left
-origin, every component in `[0, 1]`. `Rect(0, 0, 1, 1)` is the whole image; a
-smaller `w`/`h` is zoomed in. The common cases have one-liners:
+A *rect* is `Rect(x, y, w, h)` — a normalized window over the image, top-left origin, every component in `[0, 1]`. `Rect(0, 0, 1, 1)` is the whole image; a smaller `w`/`h` is zoomed in. The common cases have one-liners:
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 from burns import ken_burns_video, BurnsPath, Rect
 
@@ -112,14 +95,11 @@ path = BurnsPath(
 )
 ```
 
-**Easing** is a CSS timing function (`"linear"`, `"ease-in-out"` (default),
-`"cubic-bezier(...)"`, or any callable) and is composed *over* the geometry —
-motion shape and motion speed stay orthogonal.
+**Easing** is a CSS timing function (`"linear"`, `"ease-in-out"` (default), `"cubic-bezier(...)"`, or any callable) and is composed *over* the geometry — motion shape and motion speed stay orthogonal.
 
-**Output aspect ratio is independent of the source image.** Set `output_aspect`
-to make a widescreen clip from a portrait photo (the renderer cover-crops, never
-stretches):
+**Output aspect ratio is independent of the source image.** Set `output_aspect` to make a widescreen clip from a portrait photo (the renderer cover-crops, never stretches):
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 ken_burns_video(
     "portrait.jpg",
@@ -130,11 +110,9 @@ ken_burns_video(
 
 ## Let `burns` design the motion for you
 
-Hand-authoring rectangles for every image gets tedious. `ken_burns_path` generates
-a cohesive, **deterministic, non-repetitive** path from a little intent — pass the
-image’s position (`index`) and it picks the framing. Duration is supplied at render
-time, so a path is reusable across clip lengths:
+Hand-authoring rectangles for every image gets tedious. `ken_burns_path` generates a cohesive, **deterministic, non-repetitive** path from a little intent — pass the image’s position (`index`) and it picks the framing. Duration is supplied at render time, so a path is reusable across clip lengths:
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 from burns import ken_burns_video, ken_burns_path
 
@@ -150,27 +128,20 @@ ken_burns_video("photo.jpg", ken_burns_path(1, easing="linear"), duration=6.0)
 
 ## Content-aware motion
 
-`ken_burns_path` frames by index, not by what is in the picture — so it will
-happily drift across empty sky. `content_aware_path_for` looks at the image
-first and builds a path that keeps the subject framed:
+`ken_burns_path` frames by index, not by what is in the picture — so it will happily drift across empty sky. `content_aware_path_for` looks at the image first and builds a path that keeps the subject framed:
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 from burns import ken_burns_video, content_aware_path_for
 
 ken_burns_video("photo.jpg", content_aware_path_for("photo.jpg", index=1), duration=5.0)
 ```
 
-No extra install: the subject estimate is a gradient-magnitude (“busyness”)
-heuristic over numpy + Pillow, which `burns` already requires. Flat regions —
-sky, walls, water — have low gradient and fall away, so the box tracks the
-detailed part of the frame.
+No extra install: the subject estimate is a gradient-magnitude (“busyness”) heuristic over numpy + Pillow, which `burns` already requires. Flat regions — sky, walls, water — have low gradient and fall away, so the box tracks the detailed part of the frame.
 
-**Faces, when you have a detector.** `burns` ships no face model. Detection is
-*injected*, so you choose the dependency: pass boxes you already have, or a
-`faces_detector` callable that returns normalized `(x, y, w, h)` boxes. The
-detector always receives a `PIL.Image` — whatever you passed as `image` is
-opened or converted first.
+**Faces, when you have a detector.** `burns` ships no face model. Detection is *injected*, so you choose the dependency: pass boxes you already have, or a `faces_detector` callable that returns normalized `(x, y, w, h)` boxes. The detector always receives a `PIL.Image` — whatever you passed as `image` is opened or converted first.
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 # boxes you already have (faces win over the saliency estimate)
 path = content_aware_path_for("group.jpg", faces=[(0.31, 0.22, 0.09, 0.12)])
@@ -179,13 +150,9 @@ path = content_aware_path_for("group.jpg", faces=[(0.31, 0.22, 0.09, 0.12)])
 path = content_aware_path_for("group.jpg", faces_detector=my_detector, index=2)
 ```
 
-With neither `faces` nor `faces_detector` you simply get saliency-only,
-sky-avoiding motion — no error, no warning, just a less specific keep-region.
+With neither `faces` nor `faces_detector` you simply get saliency-only, sky-avoiding motion — no error, no warning, just a less specific keep-region.
 
-**The geometry on its own.** `content_aware_path` is the pixel-free core: give
-it the image size and a keep-region and it returns the `BurnsPath`. Reach for it
-when the boxes come from somewhere else — a UI, a database, an upstream vision
-pipeline.
+**The geometry on its own.** `content_aware_path` is the pixel-free core: give it the image size and a keep-region and it returns the `BurnsPath`. Reach for it when the boxes come from somewhere else — a UI, a database, an upstream vision pipeline.
 
 ```python
 from burns import content_aware_path
@@ -195,25 +162,15 @@ path = content_aware_path(
 )
 ```
 
-Start and end windows are both centered on the keep-region (sliding inside the
-image edges when they’d overhang) and sized to the output aspect, so the
-renderer’s cover-crop is a no-op — what you frame is what shows.
+Start and end windows are both centered on the keep-region (sliding inside the image edges when they’d overhang) and sized to the output aspect, so the renderer’s cover-crop is a no-op — what you frame is what shows.
 
-The requested `zoom` is **capped** so the padded keep-region normally stays
-inside the frame — but a `min_zoom + 0.02` floor wins over that cap, so a
-keep-region that fills the picture is cropped slightly rather than yielding no
-motion at all. If a subject that fills the frame must stay whole, tighten the
-keep-region (a smaller `keep_pad`, or explicit boxes); raising `zoom` cannot do
-it. `index` keeps the same rhythm as `ken_burns_path` (odd pushes in, even pulls
-out); `mode="in"` / `mode="out"` overrides it.
+The requested `zoom` is **capped** so the padded keep-region normally stays inside the frame — but a `min_zoom + 0.02` floor wins over that cap, so a keep-region that fills the picture is cropped slightly rather than yielding no motion at all. If a subject that fills the frame must stay whole, tighten the keep-region (a smaller `keep_pad`, or explicit boxes); raising `zoom` cannot do it. `index` keeps the same rhythm as `ken_burns_path` (odd pushes in, even pulls out); `mode="in"` / `mode="out"` overrides it.
 
 ## Storing a move: the named vocabulary
 
-A `BurnsPath` is *resolved geometry* — rectangles measured against one picture’s
-pixels. That makes it the wrong thing to persist when the picture can change.
-What an editor wants to keep is the **authored intent**, resolved against
-whatever still is in the slot at render time:
+A `BurnsPath` is *resolved geometry* — rectangles measured against one picture’s pixels. That makes it the wrong thing to persist when the picture can change. What an editor wants to keep is the **authored intent**, resolved against whatever still is in the slot at render time:
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 from burns import MOVES, resolve_move
 
@@ -224,14 +181,11 @@ MOVES
 path = resolve_move("push_in", image="photo.jpg", aspect=16 / 9, seed=4021)
 ```
 
-Replace the still and the move re-frames itself; keep the still and the move is
-exactly what it was. So store `(move, zoom, focus, seed)` and call
-`resolve_move` at render time — never cache the path it returns.
+Replace the still and the move re-frames itself; keep the still and the move is exactly what it was. So store `(move, zoom, focus, seed)` and call `resolve_move` at render time — never cache the path it returns.
 
-**One code path, two front doors.** `move` takes a name *or* an explicit
-`BurnsPath` (or its `to_dict()` payload), so a panel carrying a hand-corrected
-override and a panel carrying a name make the same call:
+**One code path, two front doors.** `move` takes a name *or* an explicit `BurnsPath` (or its `to_dict()` payload), so a panel carrying a hand-corrected override and a panel carrying a name make the same call:
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 resolve_move(
     panel.path or panel.move,
@@ -243,40 +197,18 @@ resolve_move(
 )
 ```
 
-An override is returned exactly as authored. If its `output_aspect` contradicts
-the `aspect` being rendered, that **raises** rather than cover-cropping somebody’s
-hand-drawn framing without saying so — a panel carries *one* path, not one per
-delivery, so a hand-corrected move on the 16:9 cut would otherwise silently show
-the wrong framing in the vertical cut of the same project. Pass
-`on_aspect_mismatch="refit"` to render it anyway: each keyframe is rebuilt at
-the new aspect **keeping what the author chose** — where the camera looks at
-each instant and how far in it is — and changing only the window’s shape.
+An override is returned exactly as authored. If its `output_aspect` contradicts the `aspect` being rendered, that **raises** rather than cover-cropping somebody’s hand-drawn framing without saying so — a panel carries *one* path, not one per delivery, so a hand-corrected move on the 16:9 cut would otherwise silently show the wrong framing in the vertical cut of the same project. Pass `on_aspect_mismatch="refit"` to render it anyway: each keyframe is rebuilt at the new aspect **keeping what the author chose** — where the camera looks at each instant and how far in it is — and changing only the window’s shape.
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 resolve_move(panel.path, image=still, aspect=9 / 16, on_aspect_mismatch="refit")
 ```
 
-**Caching a render? Put `burns.RESOLVER_IMPL_VERSION` in the key.** A stored
-panel is an intent, so the pixels it becomes are decided by constants in this
-module (`DFLT_ZOOM`, `DRIFT_TRAVEL`, `DRIFT_SPAN`, `DRIFT_MIN_ROOM`,
-`AUTO_WEIGHTS`). Retune any of them and an unchanged panel renders differently —
-so a key built from the panel alone serves the old frames forever, or produces a
-cut that silently disagrees with its siblings. It is `nw.Transform.impl_version`’s
-contract, *a lock not a receipt*: bumped when the geometry changes, left alone
-for a docstring. Deliberately **not** the package version, so a burns release
-that touches only the renderer invalidates nobody’s cut.
+**Caching a render? Put `burns.RESOLVER_IMPL_VERSION` in the key.** A stored panel is an intent, so the pixels it becomes are decided by constants in this module (`DFLT_ZOOM`, `DRIFT_TRAVEL`, `DRIFT_SPAN`, `DRIFT_MIN_ROOM`, `AUTO_WEIGHTS`). Retune any of them and an unchanged panel renders differently — so a key built from the panel alone serves the old frames forever, or produces a cut that silently disagrees with its siblings. It is `nw.Transform.impl_version`’s contract, *a lock not a receipt*: bumped when the geometry changes, left alone for a docstring. Deliberately **not** the package version, so a burns release that touches only the renderer invalidates nobody’s cut.
 
-**`seed` is not a position.** Deriving motion from a panel’s ordinal (`i % 2` for
-the style, `i % 4` for the zoom) means reordering one panel changes the camera on
-every panel after it, and “keep this move, change this picture” cannot be said at
-all. `resolve_move` is a pure function of its arguments and never of a position:
-mint a `seed` once, store it beside the move, and the move survives every
-reorder.
+**`seed` is not a position.** Deriving motion from a panel’s ordinal (`i % 2` for the style, `i % 4` for the zoom) means reordering one panel changes the camera on every panel after it, and “keep this move, change this picture” cannot be said at all. `resolve_move` is a pure function of its arguments and never of a position: mint a `seed` once, store it beside the move, and the move survives every reorder.
 
-The seed does exactly one job — choosing which concrete move `"auto"` becomes
-(`choose_move(seed)` says which, so a UI can show it and a user can pin it). It
-deliberately does not perturb a named move’s zoom or framing: a decision a seed
-can still nudge is not a decision.
+The seed does exactly one job — choosing which concrete move `"auto"` becomes (`choose_move(seed)` says which, so a UI can show it and a user can pin it). It deliberately does not perturb a named move’s zoom or framing: a decision a seed can still nudge is not a decision.
 
 | Move                                                     | What it does                                                                                                                             |
 |----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
@@ -285,17 +217,13 @@ can still nudge is not a decision.
 | `hold`                                                   | A static framing (two equal keyframes). Honours `zoom`; pass `zoom=1.0` for the untouched frame.                                         |
 | `auto`                                                   | A selector over the rest, resolved by `seed`.                                                                                            |
 
-`focus` is an explicit keep-region overriding the saliency estimate — a `Rect`, a
-normalized `(x, y, w, h)` tuple, or any object with `.x/.y/.w/.h`, so a consumer
-need not import burns’ rectangle type to say where to look.
+`focus` is an explicit keep-region overriding the saliency estimate — a `Rect`, a normalized `(x, y, w, h)` tuple, or any object with `.x/.y/.w/.h`, so a consumer need not import burns’ rectangle type to say where to look.
 
 ## Multi-image films
 
-`ken_burns_film` renders a sequence of `(image, path, duration_s)` panels as **one
-continuous film** — a single encode pass, so there are no concatenation seams and
-no per-image freeze frames at the cuts. Pass an optional pre-built audio track to
-mux it in.
+`ken_burns_film` renders a sequence of `(image, path, duration_s)` panels as **one continuous film** — a single encode pass, so there are no concatenation seams and no per-image freeze frames at the cuts. Pass an optional pre-built audio track to mux it in.
 
+<!-- wads-docs: skip needs an image file in the working directory -->
 ```python
 from burns import ken_burns_film, ken_burns_path
 
@@ -309,16 +237,7 @@ ken_burns_film(panels, saveas="film.mp4", fps=30, audio_path="narration.mp3")
 
 ## Interop: one spec, many renderers
 
-A `BurnsPath` serializes to a small versioned JSON document via `path.to_dict()`
-(and back via `BurnsPath.from_dict(...)`). That is the wire format, and it is
-already shared across two languages: [`kenburnz`](https://www.npmjs.com/package/kenburnz)
-is a TypeScript port of the same `evaluate(t)` math, living in this repo’s
-[`ts/`]() directory and published to npm. It is pinned to the Python side by a
-shared golden-vector fixture, and adds browser-only pieces: a zero-cost CSS
-transform preview, a WebCodecs `.webm` exporter, and `mountPathEntry` — a
-headless component for *authoring* a path in a UI. It is young (0.0.1), and its
-browser-only paths are verified locally rather than in CI. No renderer owns the
-motion.
+A `BurnsPath` serializes to a small versioned JSON document via `path.to_dict()` (and back via `BurnsPath.from_dict(...)`). That is the wire format, and it is already shared across two languages: [`kenburnz`](https://www.npmjs.com/package/kenburnz) is a TypeScript port of the same `evaluate(t)` math, living in this repo’s [`ts/`]() directory and published to npm. It is pinned to the Python side by a shared golden-vector fixture, and adds browser-only pieces: a zero-cost CSS transform preview, a WebCodecs `.webm` exporter, and `mountPathEntry` — a headless component for *authoring* a path in a UI. It is young (0.0.1), and its browser-only paths are verified locally rather than in CI. No renderer owns the motion.
 
 ## API
 

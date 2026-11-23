@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "built_at": "2026-11-22T22:51:23Z",
+  "built_at": "2026-11-23T06:45:21Z",
   "package": {
     "name": "burns",
     "version": "0.0.29",
@@ -9,24 +9,24 @@
   },
   "git": {
     "available": true,
-    "commit": "3a0ceaf5ecba65dad6db12246a01017722e6fcdb",
-    "short_commit": "3a0ceaf",
+    "commit": "23e93e2adcdbb282986ba44a48089576741361ec",
+    "short_commit": "23e93e2",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/reeleehq/burns",
-    "commit_url": "https://github.com/reeleehq/burns/commit/3a0ceaf5ecba65dad6db12246a01017722e6fcdb",
+    "commit_url": "https://github.com/reeleehq/burns/commit/23e93e2adcdbb282986ba44a48089576741361ec",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "reeleehq/burns",
-    "sha": "3a0ceaf5ecba65dad6db12246a01017722e6fcdb",
+    "sha": "23e93e2adcdbb282986ba44a48089576741361ec",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "45079732598",
-    "run_url": "https://github.com/reeleehq/burns/actions/runs/45079732598",
+    "run_id": "45125942924",
+    "run_url": "https://github.com/reeleehq/burns/actions/runs/45125942924",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -64,7 +64,7 @@
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/reeleehq/burns && cd burns\ngit checkout 3a0ceaf5ecba65dad6db12246a01017722e6fcdb\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/reeleehq/burns && cd burns\ngit checkout 23e93e2adcdbb282986ba44a48089576741361ec\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,
